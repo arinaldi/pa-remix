@@ -1,10 +1,7 @@
 import { Link } from "@remix-run/react";
-// import { useRouter } from "next/router";
 import { ArrowNarrowDownIcon } from "@heroicons/react/outline";
 
 import type { ReactNode } from "react";
-// import { parseQuery } from "utils";
-// import { Children } from "utils/types";
 
 interface Props {
   children: ReactNode;
@@ -12,8 +9,6 @@ interface Props {
 }
 
 export default function SortableColumn({ children, prop }: Props) {
-  // const { query } = useRouter();
-  // const sort = parseQuery(query.sort);
   const sort = "";
   let [sortProp, desc] = sort.split(":") ?? [];
   let newSort = null;

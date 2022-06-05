@@ -20,18 +20,10 @@ interface ButtonProps {
   isDisabled: boolean;
   label: PAGE;
   pageValue: number;
-  // prefetch?: () => void;
 }
 
-function Button({
-  children,
-  isDisabled,
-  label,
-  pageValue,
-}: // prefetch,
-ButtonProps) {
+function Button({ children, isDisabled, label, pageValue }: ButtonProps) {
   const [searchParams, setSearchParams] = useSearchParams();
-  // const page = parsePageQuery(searchParams.get("page"));
   const params = Object.fromEntries(searchParams.entries());
 
   function onClick() {
@@ -39,15 +31,6 @@ ButtonProps) {
       ...params,
       page: pageValue.toString(),
     });
-
-    // router.replace(
-    //   {
-    //     pathname: ROUTES_ADMIN.base.href,
-    //     query: { ...router.query, page: pageValue },
-    //   },
-    //   undefined,
-    //   { shallow: true }
-    // );
   }
 
   return (
@@ -67,45 +50,8 @@ ButtonProps) {
 export default function Pagination({ lastPage }: PaginationProps) {
   const [searchParams] = useSearchParams();
   const page = parsePageQuery(searchParams.get("page"));
-  // const router = useRouter();
-  // const prefetch = usePrefetch();
-  // const { artist, page, perPage, sort, studio, title } = parseAdminQuery(
-  //   router.query
-  // );
   const isFirstPage = page === 1;
   const isLastPage = page === lastPage;
-
-  // function onPrevious() {
-  //   const newPage = page - 2;
-  //   const url = generateAlbumsUrl({
-  //     artist,
-  //     page: newPage,
-  //     perPage,
-  //     sort,
-  //     studio,
-  //     title,
-  //   });
-
-  //   if (newPage > 0) {
-  //     prefetch(url);
-  //   }
-  // }
-
-  // function onNext() {
-  //   const newPage = page + 2;
-  //   const url = generateAlbumsUrl({
-  //     artist,
-  //     page: newPage,
-  //     perPage,
-  //     sort,
-  //     studio,
-  //     title,
-  //   });
-
-  //   if (newPage <= lastPage) {
-  //     prefetch(url);
-  //   }
-  // }
 
   return (
     <nav
@@ -119,19 +65,13 @@ export default function Pagination({ lastPage }: PaginationProps) {
         isDisabled={isFirstPage}
         label={PAGE.PREVIOUS}
         pageValue={page - 1}
-        // prefetch={onPrevious}
       >
         ‹
       </Button>
       <span className="relative inline-flex items-center border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 dark:border-black dark:bg-gray-700 dark:text-white">
         {page}
       </span>
-      <Button
-        isDisabled={isLastPage}
-        label={PAGE.NEXT}
-        pageValue={page + 1}
-        // prefetch={onNext}
-      >
+      <Button isDisabled={isLastPage} label={PAGE.NEXT} pageValue={page + 1}>
         ›
       </Button>
       <Button isDisabled={isLastPage} label={PAGE.LAST} pageValue={lastPage}>
