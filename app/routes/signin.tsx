@@ -8,7 +8,7 @@ import { ROUTE_HREF } from "~/lib/constants";
 import { supabase } from "~/lib/supabase";
 import { getUser } from "~/lib/supabase/auth";
 import { supabaseToken } from "~/lib/supabase/cookie";
-import { isEmailValid } from "~/utils";
+import { isEmailValid } from "~/lib/utils";
 import Input from "~/components/Input";
 import Layout from "~/components/Layout";
 import PasswordInput from "~/components/PasswordInput";

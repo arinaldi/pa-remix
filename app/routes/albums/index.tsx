@@ -2,19 +2,21 @@ import { json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { ArrowUpIcon } from "@heroicons/react/outline";
 
+import type { LoaderFunction } from "@remix-run/node";
+
 import { getFavorites } from "~/models/album.server";
-import { formatFavorites, sortDesc } from "~/utils";
+import { formatFavorites, sortDesc } from "~/lib/utils";
 import Layout from "~/components/Layout";
 
 type LoaderData = {
   favorites: Awaited<ReturnType<typeof getFavorites>>;
 };
 
-export async function loader() {
-  return json<LoaderData>({
-    favorites: await getFavorites(),
-  });
-}
+export const loader: LoaderFunction = async () => {
+  const favorites = await getFavorites();
+
+  return json<LoaderData>({ favorites });
+};
 
 export default function TopAlbums() {
   const { favorites } = useLoaderData<LoaderData>();

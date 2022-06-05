@@ -7,7 +7,7 @@ import type { User } from "@supabase/supabase-js";
 
 import { getUser } from "~/lib/supabase/auth";
 import { getReleases } from "~/models/release.server";
-import { formatReleases, sortByDate } from "~/utils";
+import { formatReleases, sortByDate } from "~/lib/utils";
 import Layout from "~/components/Layout";
 
 type LoaderData = {
