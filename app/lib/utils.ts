@@ -1,8 +1,7 @@
-import { useMatches } from "@remix-run/react";
-import { useMemo } from "react";
-
 import type { Album } from "~/models/album.server";
 import type { Release } from "~/models/release.server";
+
+import { PER_PAGE } from "~/lib/constants";
 
 export interface ListItem {
   artist: string;
@@ -91,4 +90,22 @@ export function sortDesc(a: Tuple, b: Tuple): number {
 
 export function isEmailValid(email: unknown): email is string {
   return typeof email === "string" && email.length > 3 && email.includes("@");
+}
+
+export function parseQuery(value: string | null) {
+  return typeof value === "string" ? value : "";
+}
+
+export function parsePageQuery(value: string | null) {
+  return typeof value === "string" ? parseInt(value) : 1;
+}
+
+export function parsePerPageQuery(value: string | null) {
+  const { SMALL, MEDIUM, LARGE } = PER_PAGE;
+  const perPage = typeof value === "string" ? parseInt(value) : PER_PAGE.SMALL;
+
+  if (perPage === SMALL) return SMALL;
+  if (perPage === MEDIUM) return MEDIUM;
+  if (perPage === LARGE) return LARGE;
+  return SMALL;
 }

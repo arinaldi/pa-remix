@@ -1,3 +1,8 @@
+export enum APP_MESSAGE_TYPES {
+  ERROR = "error",
+  INFO = "info",
+}
+
 export enum MESSAGES {
   ALBUM_PREFIX = "Album successfully",
   SONG_PREFIX = "Song successfully",
@@ -27,3 +32,15 @@ export const ROUTES_ADMIN = {
   edit: { href: "/admin/edit", label: "Admin Edit" },
   delete: { href: "/admin/delete", label: "Admin Delete" },
 };
+
+export enum PER_PAGE {
+  SMALL = 25,
+  MEDIUM = 50,
+  LARGE = 100,
+}
+
+export enum SORT_DIRECTION {
+  ASC = "asc",
+  DESC = "desc",
+  NONE = "",
+}
