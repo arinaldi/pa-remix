@@ -4,11 +4,10 @@ import { CheckIcon, PencilIcon, TrashIcon } from "@heroicons/react/outline";
 
 import type { LoaderFunction } from "@remix-run/node";
 
-import { getAlbums } from "~/models/album.server";
-
 import { APP_MESSAGE_TYPES, ROUTE_HREF } from "~/lib/constants";
 import { getUser } from "~/lib/supabase/auth";
 import { parseQuery, parsePageQuery, parsePerPageQuery } from "~/lib/utils";
+import { getAlbums } from "~/models/album.server";
 import AppMessage from "~/components/AppMessage";
 import Button from "~/components/Button";
 import Column from "~/components/Column";
@@ -16,6 +15,7 @@ import Layout from "~/components/Layout";
 import Pagination from "~/components/Pagination";
 import PerPage from "~/components/PerPage";
 import SortableColumn from "~/components/SortableColumn";
+import StudioFilter from "~/components/StudioFilter";
 import TableSkeleton from "~/components/TableSkeleton";
 
 type LoaderData = Awaited<ReturnType<typeof getAlbums>>;
@@ -33,7 +33,7 @@ export const loader: LoaderFunction = async ({ request }) => {
     page: parsePageQuery(url.searchParams.get("page")),
     perPage: parsePerPageQuery(url.searchParams.get("perPage")),
     sort: parseQuery(url.searchParams.get("sort")),
-    studio: "",
+    studio: parseQuery(url.searchParams.get("studio")),
     title: "",
   });
 
@@ -103,7 +103,9 @@ export default function Admin() {
         <div className="mx-2" />
         <PerPage />
         <div className="mx-2" />
-        <div className="hidden sm:block">{/* <StudioFilter /> */}</div>
+        <div className="hidden sm:block">
+          <StudioFilter />
+        </div>
       </div>
 
       {albums.length === 0 && !isLoading ? (

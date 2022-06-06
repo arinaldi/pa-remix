@@ -33,7 +33,7 @@ interface Queries {
   page: number;
   perPage: PER_PAGE;
   sort: string;
-  studio: "true" | "";
+  studio: string;
   title: string;
 }
 
