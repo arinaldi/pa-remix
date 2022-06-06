@@ -18,7 +18,10 @@ import SortableColumn from "~/components/SortableColumn";
 import StudioFilter from "~/components/StudioFilter";
 import TableSkeleton from "~/components/TableSkeleton";
 
-type LoaderData = Awaited<ReturnType<typeof getAlbums>>;
+type AlbumData = Awaited<ReturnType<typeof getAlbums>>;
+type LoaderData = AlbumData & {
+  version: string;
+};
 
 export const loader: LoaderFunction = async ({ request }) => {
   const user = await getUser(request);
@@ -37,11 +40,15 @@ export const loader: LoaderFunction = async ({ request }) => {
     title: "",
   });
 
-  return json<LoaderData>({ albums, count });
+  return json<LoaderData>({
+    albums,
+    count,
+    version: process.env.APP_VERSION as string,
+  });
 };
 
 export default function Admin() {
-  const { albums, count } = useLoaderData<LoaderData>();
+  const { albums, count, version } = useLoaderData<LoaderData>();
   const [searchParams] = useSearchParams();
   const perPage = parsePerPageQuery(searchParams.get("perPage"));
   const isLoading = false;
@@ -58,7 +65,7 @@ export default function Admin() {
 
   const AppVersion = (
     <div className="dark:text-white">
-      <code className="mr-3">{`app version`}</code>
+      <code className="mr-3">{version}</code>
       <span className="text-md mr-1 rounded-md bg-gray-100 px-1 font-semibold dark:bg-gray-700 sm:text-lg">
         {/* {cdTotal === 0 ? "—" : cdTotal} */}
         {cdTotal}
