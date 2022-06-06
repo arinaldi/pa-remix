@@ -8,7 +8,7 @@ import { getAlbums } from "~/models/album.server";
 
 import { APP_MESSAGE_TYPES, ROUTE_HREF } from "~/lib/constants";
 import { getUser } from "~/lib/supabase/auth";
-import { parsePageQuery, parsePerPageQuery } from "~/lib/utils";
+import { parseQuery, parsePageQuery, parsePerPageQuery } from "~/lib/utils";
 import AppMessage from "~/components/AppMessage";
 import Button from "~/components/Button";
 import Column from "~/components/Column";
@@ -28,13 +28,11 @@ export const loader: LoaderFunction = async ({ request }) => {
   }
 
   const url = new URL(request.url);
-  const page = parsePageQuery(url.searchParams.get("page"));
-  const perPage = parsePerPageQuery(url.searchParams.get("perPage"));
   const { albums, count } = await getAlbums({
     artist: "",
-    page,
-    perPage,
-    sort: "",
+    page: parsePageQuery(url.searchParams.get("page")),
+    perPage: parsePerPageQuery(url.searchParams.get("perPage")),
+    sort: parseQuery(url.searchParams.get("sort")),
     studio: "",
     title: "",
   });

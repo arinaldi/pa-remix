@@ -1,7 +1,9 @@
-import { Link } from "@remix-run/react";
+import { Link, useSearchParams } from "@remix-run/react";
 import { ArrowNarrowDownIcon } from "@heroicons/react/outline";
 
 import type { ReactNode } from "react";
+
+import { parseQuery } from "~/lib/utils";
 
 interface Props {
   children: ReactNode;
@@ -9,7 +11,9 @@ interface Props {
 }
 
 export default function SortableColumn({ children, prop }: Props) {
-  const sort = "";
+  const [searchParams] = useSearchParams();
+  const sort = parseQuery(searchParams.get("sort"));
+  const params = Object.fromEntries(searchParams.entries());
   let [sortProp, desc] = sort.split(":") ?? [];
   let newSort = null;
 
@@ -19,20 +23,17 @@ export default function SortableColumn({ children, prop }: Props) {
     newSort = `${prop}:desc`;
   }
 
-  // const newSearchParams = new URLSearchParams({
-  //   ...query,
-  //   sort: newSort as string,
-  // });
+  const newSearchParams = new URLSearchParams({
+    ...params,
+    sort: newSort as string,
+  });
 
   return (
     <th
       className="cursor-pointer px-3 py-3 text-left text-xs font-extrabold uppercase tracking-wider text-gray-700 dark:text-white sm:w-1/4"
       scope="col"
     >
-      <Link
-        // href={newSort ? `?${newSearchParams}` : "/admin"}
-        to="#"
-      >
+      <Link to={newSort ? `?${newSearchParams}` : "/admin"}>
         {children}
         <span
           className={`${
