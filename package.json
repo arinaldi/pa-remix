@@ -1,12 +1,12 @@
 {
   "name": "pa-remix",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "sideEffects": false,
   "scripts": {
-    "build": "APP_VERSION=$npm_package_version run-s build:*",
+    "build": "run-s build:*",
     "build:css": "npm run generate:css -- --minify",
-    "build:remix": "remix build",
+    "build:remix": "APP_VERSION=$npm_package_version remix build",
     "dev": "APP_VERSION=$npm_package_version run-p dev:*",
     "dev:css": "npm run generate:css -- --watch",
     "dev:remix": "cross-env NODE_ENV=development binode -- @remix-run/dev:remix dev",

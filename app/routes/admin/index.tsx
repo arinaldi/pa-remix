@@ -1,10 +1,17 @@
+import { useEffect, useRef, useState } from "react";
 import { json, redirect } from "@remix-run/node";
 import { useLoaderData, useSearchParams } from "@remix-run/react";
 import { CheckIcon, PencilIcon, TrashIcon } from "@heroicons/react/outline";
 
+import type { FormEvent } from "react";
 import type { LoaderFunction } from "@remix-run/node";
 
-import { APP_MESSAGE_TYPES, ROUTE_HREF } from "~/lib/constants";
+import {
+  APP_MESSAGE_TYPES,
+  PER_PAGE,
+  ROUTE_HREF,
+  SORT_VALUE,
+} from "~/lib/constants";
 import { getUser } from "~/lib/supabase/auth";
 import { parseQuery, parsePageQuery, parsePerPageQuery } from "~/lib/utils";
 import { getAlbums } from "~/models/album.server";
@@ -15,6 +22,7 @@ import Layout from "~/components/Layout";
 import Pagination from "~/components/Pagination";
 import PerPage from "~/components/PerPage";
 import SortableColumn from "~/components/SortableColumn";
+import SubmitButton from "~/components/SubmitButton";
 import StudioFilter from "~/components/StudioFilter";
 import TableSkeleton from "~/components/TableSkeleton";
 
@@ -32,12 +40,12 @@ export const loader: LoaderFunction = async ({ request }) => {
 
   const url = new URL(request.url);
   const { albums, count } = await getAlbums({
-    artist: "",
+    artist: parseQuery(url.searchParams.get("artist")),
     page: parsePageQuery(url.searchParams.get("page")),
     perPage: parsePerPageQuery(url.searchParams.get("perPage")),
     sort: parseQuery(url.searchParams.get("sort")),
     studio: parseQuery(url.searchParams.get("studio")),
-    title: "",
+    title: parseQuery(url.searchParams.get("title")),
   });
 
   return json<LoaderData>({
@@ -49,10 +57,43 @@ export const loader: LoaderFunction = async ({ request }) => {
 
 export default function Admin() {
   const { albums, count, version } = useLoaderData<LoaderData>();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const params = Object.fromEntries(searchParams.entries());
   const perPage = parsePerPageQuery(searchParams.get("perPage"));
+  const [artist, setArtist] = useState("");
+  const [title, setTitle] = useState("");
+  const artistRef = useRef<HTMLInputElement | null>(null);
   const isLoading = false;
   const cdTotal = 222;
+
+  useEffect(() => {
+    artistRef?.current?.focus();
+  }, []);
+
+  function onSubmit(event: FormEvent) {
+    event.preventDefault();
+    setSearchParams({
+      ...params,
+      artist,
+      page: "1",
+      sort: SORT_VALUE.YEAR,
+      title,
+    });
+  }
+
+  function onClear() {
+    setArtist("");
+    setTitle("");
+    artistRef?.current?.focus();
+    setSearchParams({
+      artist: "",
+      page: "1",
+      perPage: PER_PAGE.SMALL.toString(),
+      sort: "",
+      studio: "",
+      title: "",
+    });
+  }
 
   const Title = (
     <>
@@ -63,47 +104,53 @@ export default function Admin() {
     </>
   );
 
-  const AppVersion = (
-    <div className="dark:text-white">
+  const TitleAction = (
+    <div className="flex items-center dark:text-white">
       <code className="mr-3">{version}</code>
       <span className="text-md mr-1 rounded-md bg-gray-100 px-1 font-semibold dark:bg-gray-700 sm:text-lg">
         {/* {cdTotal === 0 ? "—" : cdTotal} */}
         {cdTotal}
       </span>
-      CDs
+      <span className="mr-2">CDs</span>
+      <Button onClick={() => {}}>New</Button>
     </div>
   );
   return (
-    <Layout title={Title} titleAction={AppVersion}>
-      <div className="mb-4 block sm:flex sm:items-center sm:justify-between">
+    <Layout title={Title} titleAction={TitleAction}>
+      <form
+        className="mb-4 block sm:flex sm:items-center sm:justify-between"
+        onSubmit={onSubmit}
+      >
         <input
           className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-black dark:bg-gray-700 dark:text-white sm:text-sm"
           id="artist-search"
           name="artist"
-          // onChange={(event) => onSearch("artist", event.target.value)}
+          onChange={(event) => setArtist(event.target.value)}
           placeholder="Search artist"
-          // ref={artistRef}
+          ref={artistRef}
           type="text"
-          // value={artist}
+          value={artist}
         />
         <input
           className="mt-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-black dark:bg-gray-700 dark:text-white sm:ml-4 sm:mt-0 sm:text-sm"
           id="title-search"
           name="title"
-          // onChange={(event) => onSearch("title", event.target.value)}
+          onChange={(event) => setTitle(event.target.value)}
           placeholder="Search title"
           type="text"
-          // value={title}
+          value={title}
         />
         <div className="mt-2 flex justify-between sm:mt-0 sm:ml-4">
           <div className="flex">
-            <Button onClick={() => {}}>Clear</Button>
+            <SubmitButton isSubmitting={false} />
             <span className="ml-1" />
-            <Button onClick={() => {}}>New</Button>
+            <Button onClick={onClear}>Clear</Button>
           </div>
-          <div className="inline sm:hidden">{/* <StudioFilter /> */}</div>
+          <div className="inline sm:hidden">
+            <StudioFilter />
+          </div>
         </div>
-      </div>
+      </form>
 
       <div className="mb-4 flex justify-center">
         <Pagination lastPage={Math.ceil(count / perPage)} />
@@ -115,7 +162,7 @@ export default function Admin() {
         </div>
       </div>
 
-      {albums.length === 0 && !isLoading ? (
+      {albums.length === 0 ? (
         <AppMessage message="No results found" type={APP_MESSAGE_TYPES.INFO} />
       ) : (
         <div className="flex flex-col">

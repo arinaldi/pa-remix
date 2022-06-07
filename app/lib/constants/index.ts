@@ -44,3 +44,10 @@ export enum SORT_DIRECTION {
   DESC = "desc",
   NONE = "",
 }
+
+export enum SORT_VALUE {
+  ARTIST = "artist",
+  NONE = "",
+  TITLE = "title",
+  YEAR = "year",
+}
