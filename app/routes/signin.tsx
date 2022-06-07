@@ -5,8 +5,8 @@ import toast from "react-hot-toast";
 
 import type { ActionFunction, LoaderFunction } from "@remix-run/server-runtime";
 
-import { ROUTE_HREF } from "~/lib/constants";
-import { supabase } from "~/lib/supabase";
+import { ROUTE_HREF, ROUTES_ADMIN } from "~/lib/constants";
+import { signIn } from "~/models/user.server";
 import { getUser } from "~/lib/supabase/auth";
 import { supabaseToken } from "~/lib/supabase/cookie";
 import { isEmailValid } from "~/lib/utils";
@@ -52,10 +52,10 @@ export const action: ActionFunction = async ({ request }) => {
     );
   }
 
-  const { error, session } = await supabase.auth.signIn({ email, password });
+  const { error, session } = await signIn(email, password);
 
   if (session) {
-    return redirect(ROUTE_HREF.NEW_RELEASES, {
+    return redirect(ROUTES_ADMIN.base.href, {
       headers: {
         "Set-Cookie": await supabaseToken.serialize(session.access_token, {
           expires: new Date(session.expires_at || ""),

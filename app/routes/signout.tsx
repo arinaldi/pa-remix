@@ -1,16 +1,14 @@
 import { json, redirect } from "@remix-run/node";
-import type { LoaderFunction } from "@remix-run/node";
+import type { LoaderFunction, Request } from "@remix-run/node";
 
 import { MESSAGES } from "~/lib/constants";
-import { supabase } from "~/lib/supabase";
-import { getToken } from "~/lib/supabase/auth";
+import { signOut } from "~/models/user.server";
 import { supabaseToken } from "~/lib/supabase/cookie";
 import { ROUTE_HREF } from "~/lib/constants";
 
 export const loader: LoaderFunction = async ({ request }) => {
   try {
-    const token = await getToken(request);
-    await supabase.auth.api.signOut(token);
+    await signOut(request as Request);
 
     return redirect(ROUTE_HREF.TOP_ALBUMS, {
       headers: {
