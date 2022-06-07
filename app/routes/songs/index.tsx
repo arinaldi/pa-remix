@@ -1,12 +1,18 @@
+import { useState } from "react";
 import { json } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
-import { TrashIcon } from "@heroicons/react/outline";
+import { useLoaderData, useSearchParams } from "@remix-run/react";
+import { DocumentAddIcon, TrashIcon } from "@heroicons/react/outline";
 
 import type { LoaderFunction } from "@remix-run/node";
 import type { User } from "@supabase/supabase-js";
+import type { Song } from "~/models/song.server";
 
+import { MODAL_TYPES } from "~/lib/constants";
 import { getUser } from "~/lib/supabase/auth";
+import { parseQuery } from "~/lib/utils";
 import { getSongs } from "~/models/song.server";
+import CreateSongModal from "~/components/CreateSongModal";
+import DeleteSongModal from "~/components/DeleteSongModal";
 import Layout from "~/components/Layout";
 
 type LoaderData = {
@@ -21,11 +27,44 @@ export const loader: LoaderFunction = async ({ request }) => {
   return json<LoaderData>({ songs, user });
 };
 
+type ModalState = Song | null;
+
+type ModalOpen =
+  | { data?: null; type: MODAL_TYPES.CREATE }
+  | { data: Song; type: MODAL_TYPES.DELETE };
+
 export default function FeaturedSongs() {
   const { songs, user } = useLoaderData<LoaderData>();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const type = parseQuery(searchParams.get("type"));
+  const [modal, setModal] = useState<ModalState>(null);
+
+  function onOpen({ data, type }: ModalOpen) {
+    setSearchParams({ type });
+
+    if (data) {
+      setModal(data);
+    }
+  }
+
+  function onClose() {
+    setSearchParams({});
+  }
 
   return (
-    <Layout title="Featured Songs">
+    <Layout
+      title="Featured Songs"
+      titleAction={
+        user ? (
+          <span className="rounded-md px-1.5 py-1 hover:bg-gray-100">
+            <DocumentAddIcon
+              className="inline h-6 w-6 cursor-pointer dark:text-white"
+              onClick={() => onOpen({ type: MODAL_TYPES.CREATE })}
+            />
+          </span>
+        ) : null
+      }
+    >
       <div className="grid gap-8 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {songs.map((song) => (
           <div
@@ -50,12 +89,9 @@ export default function FeaturedSongs() {
               {user ? (
                 <span
                   className="ml-2 cursor-pointer dark:text-white"
-                  // onClick={() =>
-                  //   setModal({
-                  //     data: song,
-                  //     type: MODAL_TYPES.FEATURED_SONGS_DELETE,
-                  //   })
-                  // }
+                  onClick={() =>
+                    onOpen({ data: song, type: MODAL_TYPES.DELETE })
+                  }
                 >
                   <TrashIcon className="inline h-4 w-4" />
                 </span>
@@ -64,6 +100,13 @@ export default function FeaturedSongs() {
           </div>
         ))}
       </div>
+
+      <CreateSongModal isOpen={type === MODAL_TYPES.CREATE} onClose={onClose} />
+      <DeleteSongModal
+        data={modal}
+        isOpen={type === MODAL_TYPES.DELETE}
+        onClose={onClose}
+      />
     </Layout>
   );
 }

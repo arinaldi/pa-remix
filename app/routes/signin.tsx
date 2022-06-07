@@ -111,7 +111,7 @@ export default function SignIn() {
           </div>
         </div>
         <div className="mt-4 flex items-center justify-end">
-          <SubmitButton isSubmitting={transition.state !== "idle"} />
+          <SubmitButton isSubmitting={transition.state === "submitting"} />
         </div>
       </Form>
     </Layout>

@@ -12,6 +12,12 @@ export enum MESSAGES {
   NO_DATA = "No Data",
 }
 
+export enum MODAL_TYPES {
+  CREATE = "create",
+  EDIT = "edit",
+  DELETE = "delete",
+}
+
 export enum ROUTE_HREF {
   TOP_ALBUMS = "/albums",
   FEATURED_SONGS = "/songs",
