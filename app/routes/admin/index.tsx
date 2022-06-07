@@ -1,7 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import { json, redirect } from "@remix-run/node";
 import { useLoaderData, useSearchParams } from "@remix-run/react";
-import { CheckIcon, PencilIcon, TrashIcon } from "@heroicons/react/outline";
+import {
+  CheckIcon,
+  DocumentAddIcon,
+  PencilIcon,
+  TrashIcon,
+} from "@heroicons/react/outline";
 
 import type { FormEvent } from "react";
 import type { LoaderFunction } from "@remix-run/node";
@@ -14,7 +19,7 @@ import {
 } from "~/lib/constants";
 import { getUser } from "~/lib/supabase/auth";
 import { parseQuery, parsePageQuery, parsePerPageQuery } from "~/lib/utils";
-import { getAlbums } from "~/models/album.server";
+import { getAlbums, getCdCount } from "~/models/album.server";
 import AppMessage from "~/components/AppMessage";
 import Button from "~/components/Button";
 import Column from "~/components/Column";
@@ -24,10 +29,10 @@ import PerPage from "~/components/PerPage";
 import SortableColumn from "~/components/SortableColumn";
 import SubmitButton from "~/components/SubmitButton";
 import StudioFilter from "~/components/StudioFilter";
-import TableSkeleton from "~/components/TableSkeleton";
 
 type AlbumData = Awaited<ReturnType<typeof getAlbums>>;
 type LoaderData = AlbumData & {
+  cdTotal: Awaited<ReturnType<typeof getCdCount>>;
   version: string;
 };
 
@@ -39,7 +44,7 @@ export const loader: LoaderFunction = async ({ request }) => {
   }
 
   const url = new URL(request.url);
-  const { albums, count } = await getAlbums({
+  const { albums, total } = await getAlbums({
     artist: parseQuery(url.searchParams.get("artist")),
     page: parsePageQuery(url.searchParams.get("page")),
     perPage: parsePerPageQuery(url.searchParams.get("perPage")),
@@ -50,21 +55,20 @@ export const loader: LoaderFunction = async ({ request }) => {
 
   return json<LoaderData>({
     albums,
-    count,
+    cdTotal: await getCdCount(),
+    total,
     version: process.env.APP_VERSION as string,
   });
 };
 
 export default function Admin() {
-  const { albums, count, version } = useLoaderData<LoaderData>();
+  const { albums, cdTotal, total, version } = useLoaderData<LoaderData>();
   const [searchParams, setSearchParams] = useSearchParams();
   const params = Object.fromEntries(searchParams.entries());
   const perPage = parsePerPageQuery(searchParams.get("perPage"));
   const [artist, setArtist] = useState("");
   const [title, setTitle] = useState("");
   const artistRef = useRef<HTMLInputElement | null>(null);
-  const isLoading = false;
-  const cdTotal = 222;
 
   useEffect(() => {
     artistRef?.current?.focus();
@@ -99,7 +103,7 @@ export default function Admin() {
     <>
       Admin
       <span className="ml-3 rounded-md bg-gray-100 px-1 text-xl font-semibold dark:bg-gray-700 sm:text-2xl">
-        {isLoading ? "—" : count.toLocaleString()}
+        {total.toLocaleString()}
       </span>
     </>
   );
@@ -108,11 +112,10 @@ export default function Admin() {
     <div className="flex items-center dark:text-white">
       <code className="mr-3">{version}</code>
       <span className="text-md mr-1 rounded-md bg-gray-100 px-1 font-semibold dark:bg-gray-700 sm:text-lg">
-        {/* {cdTotal === 0 ? "—" : cdTotal} */}
         {cdTotal}
       </span>
-      <span className="mr-2">CDs</span>
-      <Button onClick={() => {}}>New</Button>
+      <span className="mr-3">CDs</span>
+      <DocumentAddIcon className="inline h-6 w-6 cursor-pointer dark:text-white" />
     </div>
   );
   return (
@@ -153,7 +156,7 @@ export default function Admin() {
       </form>
 
       <div className="mb-4 flex justify-center">
-        <Pagination lastPage={Math.ceil(count / perPage)} />
+        <Pagination lastPage={Math.ceil(total / perPage)} />
         <div className="mx-2" />
         <PerPage />
         <div className="mx-2" />
@@ -180,57 +183,53 @@ export default function Admin() {
                       <Column>Actions</Column>
                     </tr>
                   </thead>
-                  {isLoading ? (
-                    <TableSkeleton />
-                  ) : (
-                    <tbody className="divide-y divide-gray-200 bg-white dark:divide-black dark:bg-gray-500">
-                      {albums.map((album) => (
-                        <tr
-                          key={album.id}
-                          className="even:bg-gray-0 odd:bg-gray-100 dark:odd:bg-gray-700 dark:even:bg-gray-800"
-                        >
-                          <td className="px-3 py-2 text-sm text-gray-900 dark:text-white sm:w-1/4 sm:max-w-0 sm:truncate">
-                            {album.artist}
-                          </td>
-                          <td className="px-3 py-2 text-sm text-gray-900 dark:text-white sm:w-1/4 sm:max-w-0 sm:truncate">
-                            {album.studio ? <span>*</span> : null}
-                            <span>{album.title}</span>
-                          </td>
-                          <td className="px-3 py-2 text-sm text-gray-900 dark:text-white sm:w-1/12">
-                            {album.year}
-                          </td>
-                          <td className="px-3 py-2 text-sm text-gray-900 dark:text-white sm:w-1/12">
-                            {album.cd ? (
-                              <CheckIcon className="inline h-5 w-5" />
-                            ) : null}
-                          </td>
-                          <td className="px-3 py-2 text-sm text-gray-900 dark:text-white sm:w-1/12">
-                            {album.favorite ? (
-                              <CheckIcon className="inline h-5 w-5" />
-                            ) : null}
-                          </td>
-                          <td className="whitespace-nowrap px-3 py-2 text-sm text-gray-900 dark:text-white sm:w-auto">
-                            <PencilIcon
-                              className="inline h-4 w-4 cursor-pointer dark:text-white"
-                              // onClick={() =>
-                              //   onRouteChange(
-                              //     `${ROUTES_ADMIN.edit.href}/${album.id}`
-                              //   )
-                              // }
-                            />
-                            <TrashIcon
-                              className="ml-4 inline h-4 w-4 cursor-pointer dark:text-white"
-                              // onClick={() =>
-                              //   onRouteChange(
-                              //     `${ROUTES_ADMIN.delete.href}/${album.id}`
-                              //   )
-                              // }
-                            />
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  )}
+                  <tbody className="divide-y divide-gray-200 bg-white dark:divide-black dark:bg-gray-500">
+                    {albums.map((album) => (
+                      <tr
+                        key={album.id}
+                        className="even:bg-gray-0 odd:bg-gray-100 dark:odd:bg-gray-700 dark:even:bg-gray-800"
+                      >
+                        <td className="px-3 py-2 text-sm text-gray-900 dark:text-white sm:w-1/4 sm:max-w-0 sm:truncate">
+                          {album.artist}
+                        </td>
+                        <td className="px-3 py-2 text-sm text-gray-900 dark:text-white sm:w-1/4 sm:max-w-0 sm:truncate">
+                          {album.studio ? <span>*</span> : null}
+                          <span>{album.title}</span>
+                        </td>
+                        <td className="px-3 py-2 text-sm text-gray-900 dark:text-white sm:w-1/12">
+                          {album.year}
+                        </td>
+                        <td className="px-3 py-2 text-sm text-gray-900 dark:text-white sm:w-1/12">
+                          {album.cd ? (
+                            <CheckIcon className="inline h-5 w-5" />
+                          ) : null}
+                        </td>
+                        <td className="px-3 py-2 text-sm text-gray-900 dark:text-white sm:w-1/12">
+                          {album.favorite ? (
+                            <CheckIcon className="inline h-5 w-5" />
+                          ) : null}
+                        </td>
+                        <td className="whitespace-nowrap px-3 py-2 text-sm text-gray-900 dark:text-white sm:w-auto">
+                          <PencilIcon
+                            className="inline h-4 w-4 cursor-pointer dark:text-white"
+                            // onClick={() =>
+                            //   onRouteChange(
+                            //     `${ROUTES_ADMIN.edit.href}/${album.id}`
+                            //   )
+                            // }
+                          />
+                          <TrashIcon
+                            className="ml-4 inline h-4 w-4 cursor-pointer dark:text-white"
+                            // onClick={() =>
+                            //   onRouteChange(
+                            //     `${ROUTES_ADMIN.delete.href}/${album.id}`
+                            //   )
+                            // }
+                          />
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
                 </table>
               </div>
             </div>

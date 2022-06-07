@@ -16,6 +16,17 @@ export interface Album {
   studio: boolean;
 }
 
+export async function getCdCount() {
+  const { count, error } = await supabase
+    .from<Album>("albums")
+    .select("*", { count: "exact", head: true })
+    .eq("cd", true);
+
+  if (error) throw error;
+  if (count) return count;
+  return 0;
+}
+
 export async function getFavorites() {
   const { data: favorites, error } = await supabase
     .from<Album>("albums")
@@ -73,5 +84,8 @@ export async function getAlbums(queries: Queries) {
 
   if (error) throw error;
 
-  return { albums: albums || [], count: count || 0 };
+  return {
+    albums: albums || [],
+    total: count || 0,
+  };
 }
