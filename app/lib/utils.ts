@@ -31,7 +31,22 @@ export function formatFavorites(favorites: Album[]): Results {
   return results;
 }
 
-export const MONTHS = [
+function addZeroPrefix(value: number) {
+  return value < 10 ? `0${value}` : value;
+}
+
+export function formatDate(isoString: string): string {
+  if (!isoString) return "";
+
+  const date = new Date(isoString);
+  const year = date.getUTCFullYear();
+  const month = date.getUTCMonth() + 1;
+  const day = date.getUTCDate();
+
+  return `${year}-${addZeroPrefix(month)}-${addZeroPrefix(day)}`;
+}
+
+const MONTHS = [
   "Jan",
   "Feb",
   "Mar",

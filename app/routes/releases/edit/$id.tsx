@@ -1,25 +1,28 @@
 import { json, redirect } from "@remix-run/node";
+import invariant from "tiny-invariant";
 
 import type { ActionFunction } from "@remix-run/node";
 
 import { MESSAGES, ROUTE_HREF } from "~/lib/constants";
 import { setAuthToken } from "~/lib/supabase/auth";
-import { createSong } from "~/models/song.server";
+import { editRelease } from "~/models/release.server";
 
 type ActionData = {
   errors?: {
     artist?: string;
     title?: string;
-    link?: string;
+    date?: string;
     submit?: string;
   };
 };
 
-export const action: ActionFunction = async ({ request }) => {
+export const action: ActionFunction = async ({ params, request }) => {
+  invariant(params.id, "Release ID not found");
+
   const formData = await request.formData();
   const artist = formData.get("artist");
   const title = formData.get("title");
-  const link = formData.get("link");
+  const date = formData.get("date");
 
   if (typeof artist !== "string" || artist.length === 0) {
     return json<ActionData>(
@@ -35,18 +38,19 @@ export const action: ActionFunction = async ({ request }) => {
     );
   }
 
-  if (typeof link !== "string" || !link.startsWith("http")) {
+  if (typeof date !== "string" || date.length === 0) {
     return json<ActionData>(
-      { errors: { title: "Link is invalid" } },
+      { errors: { title: "Date is invalid" } },
       { status: 400 }
     );
   }
 
   await setAuthToken(request);
-  const success = await createSong({ artist, title, link });
+  const id = parseInt(params.id);
+  const success = await editRelease(id, { artist, date, title });
 
   if (success) {
-    return redirect(ROUTE_HREF.FEATURED_SONGS);
+    return redirect(ROUTE_HREF.NEW_RELEASES);
   }
 
   return json<ActionData>(

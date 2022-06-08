@@ -1,21 +1,21 @@
-import type { Song } from "~/models/song.server";
+import type { Release } from "~/models/release.server";
 
 import Modal from "~/components/Modal";
 
 interface Props {
-  data: Song | null;
+  data: Release | null;
   isOpen: boolean;
   onClose: () => void;
 }
 
-export default function DeleteSongModal({ data, isOpen, onClose }: Props) {
+export default function DeleteRelease({ data, isOpen, onClose }: Props) {
   return (
     <Modal
-      action={`/songs/delete/${data?.id}`}
+      action={`/releases/delete/${data?.id}`}
       isOpen={isOpen}
       method="delete"
       onClose={onClose}
-      title="Delete Song"
+      title="Delete Release"
     >
       <div className="bg-white p-6 dark:bg-gray-800">
         <div className="grid grid-cols-6 gap-6">

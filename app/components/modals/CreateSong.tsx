@@ -6,7 +6,7 @@ interface Props {
   onClose: () => void;
 }
 
-export default function CreateSongModal({ isOpen, onClose }: Props) {
+export default function CreateSong({ isOpen, onClose }: Props) {
   return (
     <Modal
       action="/songs/new"

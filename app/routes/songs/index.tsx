@@ -11,8 +11,8 @@ import { MODAL_TYPES } from "~/lib/constants";
 import { getUser } from "~/lib/supabase/auth";
 import { parseQuery } from "~/lib/utils";
 import { getSongs } from "~/models/song.server";
-import CreateSongModal from "~/components/CreateSongModal";
-import DeleteSongModal from "~/components/DeleteSongModal";
+import CreateSong from "~/components/modals/CreateSong";
+import DeleteSong from "~/components/modals/DeleteSong";
 import Layout from "~/components/Layout";
 
 type LoaderData = {
@@ -28,7 +28,6 @@ export const loader: LoaderFunction = async ({ request }) => {
 };
 
 type ModalState = Song | null;
-
 type ModalOpen =
   | { data?: null; type: MODAL_TYPES.CREATE }
   | { data: Song; type: MODAL_TYPES.DELETE };
@@ -101,8 +100,8 @@ export default function FeaturedSongs() {
         ))}
       </div>
 
-      <CreateSongModal isOpen={type === MODAL_TYPES.CREATE} onClose={onClose} />
-      <DeleteSongModal
+      <CreateSong isOpen={type === MODAL_TYPES.CREATE} onClose={onClose} />
+      <DeleteSong
         data={modal}
         isOpen={type === MODAL_TYPES.DELETE}
         onClose={onClose}

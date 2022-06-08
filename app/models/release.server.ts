@@ -18,3 +18,26 @@ export async function getReleases() {
   if (releases) return releases;
   return [];
 }
+
+type ReleaseInput = Omit<Release, "id" | "created_at">;
+
+export async function createRelease(input: ReleaseInput) {
+  const { error } = await supabase.from<Release>("releases").insert([input]);
+
+  if (error) throw error;
+  return true;
+}
+
+export async function editRelease(id: number, input: ReleaseInput) {
+  const { error } = await supabase.from("releases").update(input).eq("id", id);
+
+  if (error) throw error;
+  return true;
+}
+
+export async function deleteRelease(id: number) {
+  const { error } = await supabase.from("releases").delete().eq("id", id);
+
+  if (error) throw error;
+  return true;
+}
