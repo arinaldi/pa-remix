@@ -25,7 +25,7 @@ export default function Modal({
   title,
 }: Props) {
   const cancelButtonRef = useRef(null);
-  const transition = useTransition();
+  const { state } = useTransition();
 
   return (
     <Transition
@@ -56,9 +56,7 @@ export default function Modal({
               <div className="flex items-center justify-end p-6 pt-0">
                 <CancelButton onClick={onClose} ref={cancelButtonRef} />
                 <span className="ml-1" />
-                <SubmitButton
-                  isSubmitting={transition.state === "submitting"}
-                />
+                <SubmitButton isSubmitting={state === "submitting"} />
               </div>
             </Form>
           </Dialog.Panel>

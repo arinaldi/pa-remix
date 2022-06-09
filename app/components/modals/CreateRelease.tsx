@@ -9,7 +9,7 @@ interface Props {
 export default function CreateRelease({ isOpen, onClose }: Props) {
   return (
     <Modal
-      action="/releases/new"
+      action="/releases/create"
       isOpen={isOpen}
       method="post"
       onClose={onClose}
@@ -24,7 +24,7 @@ export default function CreateRelease({ isOpen, onClose }: Props) {
             <Input id="title" required type="text" />
           </div>
           <div className="col-span-6">
-            <Input id="date" required type="date" />
+            <Input id="date" type="date" />
           </div>
         </div>
       </div>

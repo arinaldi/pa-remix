@@ -1,6 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { json, redirect } from "@remix-run/node";
-import { useLoaderData, useSearchParams } from "@remix-run/react";
+import {
+  Link,
+  useLoaderData,
+  useLocation,
+  useSearchParams,
+} from "@remix-run/react";
 import {
   CheckIcon,
   DocumentAddIcon,
@@ -15,6 +20,7 @@ import {
   APP_MESSAGE_TYPES,
   PER_PAGE,
   ROUTE_HREF,
+  ROUTES_ADMIN,
   SORT_VALUE,
 } from "~/lib/constants";
 import { getUser } from "~/lib/supabase/auth";
@@ -63,6 +69,7 @@ export const loader: LoaderFunction = async ({ request }) => {
 
 export default function Admin() {
   const { albums, cdTotal, total, version } = useLoaderData<LoaderData>();
+  const { search } = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
   const params = Object.fromEntries(searchParams.entries());
   const perPage = parsePerPageQuery(searchParams.get("perPage"));
@@ -101,7 +108,7 @@ export default function Admin() {
 
   const Title = (
     <>
-      Admin
+      {ROUTES_ADMIN.base.label}
       <span className="ml-3 rounded-md bg-gray-100 px-1 text-xl font-semibold dark:bg-gray-700 sm:text-2xl">
         {total.toLocaleString()}
       </span>
@@ -115,7 +122,12 @@ export default function Admin() {
         {cdTotal}
       </span>
       <span className="mr-3">CDs</span>
-      <DocumentAddIcon className="inline h-6 w-6 cursor-pointer dark:text-white" />
+      <Link
+        className="rounded-md px-1.5 py-1 hover:bg-gray-200"
+        to={`${ROUTES_ADMIN.create.href}${search}`}
+      >
+        <DocumentAddIcon className="inline h-6 w-6 cursor-pointer dark:text-white" />
+      </Link>
     </div>
   );
   return (
@@ -210,22 +222,18 @@ export default function Admin() {
                           ) : null}
                         </td>
                         <td className="whitespace-nowrap px-3 py-2 text-sm text-gray-900 dark:text-white sm:w-auto">
-                          <PencilIcon
-                            className="inline h-4 w-4 cursor-pointer dark:text-white"
-                            // onClick={() =>
-                            //   onRouteChange(
-                            //     `${ROUTES_ADMIN.edit.href}/${album.id}`
-                            //   )
-                            // }
-                          />
-                          <TrashIcon
-                            className="ml-4 inline h-4 w-4 cursor-pointer dark:text-white"
-                            // onClick={() =>
-                            //   onRouteChange(
-                            //     `${ROUTES_ADMIN.delete.href}/${album.id}`
-                            //   )
-                            // }
-                          />
+                          <Link
+                            className="rounded-md px-1.5 py-1 hover:bg-gray-200"
+                            to={`${ROUTES_ADMIN.edit.href}/${album.id}${search}`}
+                          >
+                            <PencilIcon className="inline h-4 w-4 cursor-pointer dark:text-white" />
+                          </Link>
+                          <Link
+                            className="ml-4 rounded-md px-1.5 py-1 hover:bg-gray-200"
+                            to={`${ROUTES_ADMIN.delete.href}/${album.id}${search}`}
+                          >
+                            <TrashIcon className="inline h-4 w-4 cursor-pointer dark:text-white" />
+                          </Link>
                         </td>
                       </tr>
                     ))}

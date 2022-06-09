@@ -75,7 +75,7 @@ export const action: ActionFunction = async ({ request }) => {
 
 export default function SignIn() {
   const actionData = useActionData() as ActionData;
-  const transition = useTransition();
+  const { state } = useTransition();
   const emailRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
 
@@ -111,7 +111,7 @@ export default function SignIn() {
           </div>
         </div>
         <div className="mt-4 flex items-center justify-end">
-          <SubmitButton isSubmitting={transition.state === "submitting"} />
+          <SubmitButton isSubmitting={state === "submitting"} />
         </div>
       </Form>
     </Layout>

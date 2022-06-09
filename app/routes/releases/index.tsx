@@ -61,7 +61,7 @@ export default function NewReleases() {
       title="New Releases"
       titleAction={
         user ? (
-          <span className="rounded-md px-1.5 py-1 hover:bg-gray-100">
+          <span className="rounded-md px-1.5 py-1 hover:bg-gray-200">
             <DocumentAddIcon
               className="inline h-6 w-6 cursor-pointer dark:text-white"
               onClick={() => onOpen({ type: MODAL_TYPES.CREATE })}

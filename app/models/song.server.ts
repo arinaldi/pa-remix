@@ -29,7 +29,7 @@ export async function createSong(input: SongInput) {
 }
 
 export async function deleteSong(id: number) {
-  const { error } = await supabase.from("songs").delete().eq("id", id);
+  const { error } = await supabase.from<Song>("songs").delete().eq("id", id);
 
   if (error) throw error;
   return true;

@@ -11,7 +11,6 @@ type ActionData = {
   errors?: {
     artist?: string;
     title?: string;
-    date?: string;
     submit?: string;
   };
 };
@@ -38,16 +37,13 @@ export const action: ActionFunction = async ({ params, request }) => {
     );
   }
 
-  if (typeof date !== "string" || date.length === 0) {
-    return json<ActionData>(
-      { errors: { title: "Date is invalid" } },
-      { status: 400 }
-    );
-  }
-
   await setAuthToken(request);
   const id = parseInt(params.id);
-  const success = await editRelease(id, { artist, date, title });
+  const success = await editRelease(id, {
+    artist,
+    date: typeof date === "string" && date.length ? date : null,
+    title,
+  });
 
   if (success) {
     return redirect(ROUTE_HREF.NEW_RELEASES);

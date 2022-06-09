@@ -9,7 +9,7 @@ interface Props {
 export default function CreateSong({ isOpen, onClose }: Props) {
   return (
     <Modal
-      action="/songs/new"
+      action="/songs/create"
       isOpen={isOpen}
       method="post"
       onClose={onClose}

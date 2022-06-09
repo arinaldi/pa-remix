@@ -34,9 +34,9 @@ export const ROUTES = [
 
 export const ROUTES_ADMIN = {
   base: { href: "/admin", label: "Admin" },
-  create: { href: "/admin/create", label: "Admin Create" },
-  edit: { href: "/admin/edit", label: "Admin Edit" },
-  delete: { href: "/admin/delete", label: "Admin Delete" },
+  create: { href: "/admin/create", label: "Create Album" },
+  edit: { href: "/admin/edit", label: "Edit Album" },
+  delete: { href: "/admin/delete", label: "Delete Album" },
 };
 
 export enum PER_PAGE {

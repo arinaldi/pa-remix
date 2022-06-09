@@ -16,6 +16,32 @@ export interface Album {
   studio: boolean;
 }
 
+type AlbumInput = Omit<Album, "id" | "created_at">;
+
+export async function createAlbum(input: AlbumInput) {
+  const { error } = await supabase.from<Album>("albums").insert([input]);
+
+  if (error) throw error;
+  return true;
+}
+
+export async function editAlbum(id: number, input: AlbumInput) {
+  const { error } = await supabase
+    .from<Album>("albums")
+    .update(input)
+    .eq("id", id);
+
+  if (error) throw error;
+  return true;
+}
+
+export async function deleteAlbum(id: number) {
+  const { error } = await supabase.from<Album>("albums").delete().eq("id", id);
+
+  if (error) throw error;
+  return true;
+}
+
 export async function getCdCount() {
   const { count, error } = await supabase
     .from<Album>("albums")
@@ -37,6 +63,17 @@ export async function getFavorites() {
   if (error) throw error;
   if (favorites) return favorites;
   return [];
+}
+
+export async function getAlbum(id: number) {
+  const { data: album, error } = await supabase
+    .from<Album>("albums")
+    .select("*")
+    .eq("id", id)
+    .single();
+
+  if (error) throw error;
+  return album;
 }
 
 interface Queries {

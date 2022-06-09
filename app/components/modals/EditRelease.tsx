@@ -36,7 +36,6 @@ export default function EditRelease({ data, isOpen, onClose }: Props) {
             <Input
               defaultValue={formatDate(data?.date || "")}
               id="date"
-              required
               type="date"
             />
           </div>
