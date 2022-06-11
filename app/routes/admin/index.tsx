@@ -72,9 +72,11 @@ export default function Admin() {
   const { search } = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
   const params = Object.fromEntries(searchParams.entries());
+  const artistParam = parseQuery(searchParams.get("artist"));
+  const titleParam = parseQuery(searchParams.get("title"));
   const perPage = parsePerPageQuery(searchParams.get("perPage"));
-  const [artist, setArtist] = useState("");
-  const [title, setTitle] = useState("");
+  const [artist, setArtist] = useState(artistParam);
+  const [title, setTitle] = useState(titleParam);
   const artistRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
