@@ -15,14 +15,17 @@ import type {
   MetaFunction,
 } from "@remix-run/node";
 
+import useNProgress from "~/hooks/useNprogress";
 import { getUser } from "~/lib/supabase/auth";
 import Navbar from "~/components/Navbar";
 import Toast from "~/components/Toast";
-import tailwindStylesheetUrl from "./styles/tailwind.css";
+import tailwindStylesheetUrl from "~/styles/tailwind.css";
+import nProgressStylesheetUrl from "~/styles/nprogress.css";
 
 export const links: LinksFunction = () => {
   return [
     { rel: "stylesheet", href: tailwindStylesheetUrl },
+    { rel: "stylesheet", href: nProgressStylesheetUrl },
     { rel: "icon", href: "https://fav.farm/💿" },
   ];
 };
@@ -51,6 +54,7 @@ export const loader: LoaderFunction = async ({ request }) => {
 
 export default function App() {
   const { user } = useLoaderData();
+  useNProgress();
 
   return (
     <html lang="en" className="h-full">
