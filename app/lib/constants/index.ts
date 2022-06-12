@@ -57,3 +57,5 @@ export enum SORT_VALUE {
   TITLE = "title",
   YEAR = "year",
 }
+
+export const SPOTIFY_URL = "https://open.spotify.com/search";

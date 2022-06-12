@@ -5,6 +5,7 @@ import { ArrowUpIcon } from "@heroicons/react/outline";
 import type { LoaderFunction } from "@remix-run/node";
 
 import { getFavorites } from "~/models/album.server";
+import { SPOTIFY_URL } from "~/lib/constants";
 import { formatFavorites, sortDesc } from "~/lib/utils";
 import Layout from "~/components/Layout";
 
@@ -46,11 +47,24 @@ export default function TopAlbums() {
                 </div>
               </div>
               <ul className="ml-6 list-disc p-1">
-                {data.map((album, index) => (
-                  <li key={index} className="dark:text-white">
-                    {album.artist} &ndash; {album.title}
-                  </li>
-                ))}
+                {data.map(({ artist, title }, index) => {
+                  const query = encodeURI(`${artist} ${title}`);
+                  const url = `${SPOTIFY_URL}/${query}`;
+
+                  return (
+                    <li key={index} className="dark:text-white">
+                      {artist} &ndash;{" "}
+                      <a
+                        className="text-blue-600 dark:text-blue-500"
+                        href={url}
+                        rel="noopener noreferrer"
+                        target="_blank"
+                      >
+                        {title}
+                      </a>
+                    </li>
+                  );
+                })}
               </ul>
             </div>
           ))}
