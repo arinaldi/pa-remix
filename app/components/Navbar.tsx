@@ -7,8 +7,10 @@ import {
   SunIcon,
   XIcon,
 } from "@heroicons/react/outline";
+
 import type { User } from "@supabase/supabase-js";
 
+import useDarkMode from "~/hooks/useDarkMode";
 import { ROUTES, ROUTES_ADMIN, ROUTE_HREF } from "~/lib/constants";
 import LinkWrapper from "~/components/LinkWrapper";
 
@@ -17,8 +19,8 @@ interface Props {
 }
 
 export default function Navbar({ user }: Props) {
+  const { isDarkMode, toggleDarkMode } = useDarkMode();
   const [isOpen, setIsOpen] = useState(false);
-  const isDarkMode = false;
 
   function toggleMenu() {
     setIsOpen((open) => !open);
@@ -26,10 +28,6 @@ export default function Navbar({ user }: Props) {
 
   function closeMenu() {
     setIsOpen(false);
-  }
-
-  function toggleDarkMode() {
-    //
   }
 
   return (

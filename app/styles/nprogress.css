@@ -12,3 +12,7 @@
   width: 100%;
   height: 5px;
 }
+
+* {
+  transition: color 0.2s ease-out, background 0.2s ease-out;
+}

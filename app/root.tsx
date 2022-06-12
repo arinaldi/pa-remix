@@ -61,8 +61,24 @@ export default function App() {
       <head>
         <Meta />
         <Links />
+        <script
+          id="dark-mode"
+          dangerouslySetInnerHTML={{
+            __html: `
+            const root = window.document.documentElement;
+            const prefersDark = !('theme' in localStorage) &&
+              window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+            if (localStorage.theme === 'dark' || prefersDark) {
+              root.classList.add('dark');
+            } else {
+              root.classList.remove('dark');
+            }
+          `,
+          }}
+        />
       </head>
-      <body className="h-full">
+      <body className="h-full dark:bg-gray-800">
         <Navbar user={user} />
         <Outlet />
         <Toast />
