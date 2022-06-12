@@ -15,7 +15,7 @@ import type {
   MetaFunction,
 } from "@remix-run/node";
 
-import useNProgress from "~/hooks/useNprogress";
+import useNProgress from "~/hooks/useNProgress";
 import { getUser } from "~/lib/supabase/auth";
 import Navbar from "~/components/Navbar";
 import Toast from "~/components/Toast";
