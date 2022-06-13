@@ -55,7 +55,7 @@ export default function TopAlbums() {
                     <li key={index} className="dark:text-white">
                       {artist} &ndash;{" "}
                       <a
-                        className="text-blue-600 dark:text-blue-500"
+                        className="text-blue-600 hover:underline dark:text-blue-500"
                         href={url}
                         rel="noopener noreferrer"
                         target="_blank"

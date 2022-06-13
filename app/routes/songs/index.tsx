@@ -78,7 +78,7 @@ export default function FeaturedSongs() {
             </div>
             <div>
               <a
-                className="text-blue-600 dark:text-blue-500"
+                className="text-blue-600 hover:underline dark:text-blue-500"
                 href={song.link}
                 rel="noopener noreferrer"
                 target="_blank"
