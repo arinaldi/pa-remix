@@ -1,11 +1,13 @@
+import { useState } from "react";
 import { json } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import { useLoaderData, useNavigate } from "@remix-run/react";
 import { ArrowUpIcon } from "@heroicons/react/outline";
 
+import type { ChangeEvent } from "react";
 import type { LoaderFunction } from "@remix-run/node";
 
 import { getFavorites } from "~/models/album.server";
-import { SPOTIFY_URL } from "~/lib/constants";
+import { DECADES, ROUTE_HREF, SPOTIFY_URL } from "~/lib/constants";
 import { formatFavorites, sortDesc } from "~/lib/utils";
 import Layout from "~/components/Layout";
 
@@ -21,6 +23,15 @@ export const loader: LoaderFunction = async () => {
 
 export default function TopAlbums() {
   const { favorites } = useLoaderData<LoaderData>();
+  const navigate = useNavigate();
+  const [value, setValue] = useState("label");
+
+  function onChange(event: ChangeEvent<HTMLSelectElement>) {
+    const { value } = event.target;
+
+    setValue(value);
+    navigate(`${ROUTE_HREF.TOP_ALBUMS}${value}`);
+  }
 
   return (
     <Layout
@@ -31,6 +42,23 @@ export default function TopAlbums() {
             {favorites.length.toLocaleString()}
           </span>
         </span>
+      }
+      titleAction={
+        <select
+          className="rounded-md border border-gray-300 bg-white py-2 pl-3 pr-8 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 dark:border-black dark:bg-gray-700 dark:text-white sm:text-sm"
+          name="decade"
+          onChange={onChange}
+          value={value}
+        >
+          <option disabled value="label">
+            Jump to decade
+          </option>
+          {DECADES.map(({ label, link }) => (
+            <option key={label} value={link}>
+              {label}
+            </option>
+          ))}
+        </select>
       }
     >
       <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">

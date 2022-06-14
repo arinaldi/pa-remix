@@ -3,6 +3,29 @@ export enum APP_MESSAGE_TYPES {
   INFO = "info",
 }
 
+export const DECADES = [
+  {
+    label: "10s",
+    link: "#2019",
+  },
+  {
+    label: "00s",
+    link: "#2009",
+  },
+  {
+    label: "90s",
+    link: "#1999",
+  },
+  {
+    label: "80s",
+    link: "#1989",
+  },
+  {
+    label: "70s",
+    link: "#1976",
+  },
+];
+
 export enum MESSAGES {
   ALBUM_PREFIX = "Album successfully",
   SONG_PREFIX = "Song successfully",
