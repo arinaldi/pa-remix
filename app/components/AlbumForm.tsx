@@ -47,7 +47,9 @@ export default function AlbumForm({ action, defaultValues, method }: Props) {
             wrapperClassName="order-2 sm:order-3"
           />
           <Input
-            defaultValue={defaultValues?.year}
+            defaultValue={
+              defaultValues?.year || new Date().getFullYear().toString()
+            }
             id="year"
             required
             type="text"
