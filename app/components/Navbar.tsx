@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useReducer } from "react";
 import {
   LoginIcon,
   LogoutIcon,
@@ -20,15 +20,10 @@ interface Props {
 
 export default function Navbar({ user }: Props) {
   const { isDarkMode, toggleDarkMode } = useDarkMode();
-  const [isOpen, setIsOpen] = useState(false);
-
-  function toggleMenu() {
-    setIsOpen((open) => !open);
-  }
-
-  function closeMenu() {
-    setIsOpen(false);
-  }
+  const [open, toggle] = useReducer(
+    (flag: boolean, next: boolean | null) => (next == null ? !flag : next),
+    false
+  );
 
   return (
     <nav className="bg-gray-800 dark:bg-gray-700">
@@ -38,12 +33,12 @@ export default function Navbar({ user }: Props) {
             <button
               className="inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-gray-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
               aria-expanded="false"
-              onClick={toggleMenu}
+              onClick={() => toggle(null)}
               type="button"
             >
               <span className="sr-only">Open main menu</span>
-              <MenuIcon className={`${isOpen ? "hidden" : "block"} h-6 w-6`} />
-              <XIcon className={`${isOpen ? "block" : "hidden"} h-6 w-6`} />
+              <MenuIcon className={`${open ? "hidden" : "block"} h-6 w-6`} />
+              <XIcon className={`${open ? "block" : "hidden"} h-6 w-6`} />
             </button>
           </div>
           <div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
@@ -95,14 +90,14 @@ export default function Navbar({ user }: Props) {
       </div>
 
       {/* Mobile menu */}
-      <div className={`${isOpen ? "block" : "hidden"} sm:hidden`}>
+      <div className={`${open ? "block" : "hidden"} sm:hidden`}>
         <div className="space-y-1 px-2 pt-2 pb-3">
           {ROUTES.map(({ href, label }) => (
             <LinkWrapper
               key={href}
               classNames="block text-base"
               href={href}
-              onClick={closeMenu}
+              onClick={() => toggle(false)}
             >
               {label}
             </LinkWrapper>
@@ -112,14 +107,14 @@ export default function Navbar({ user }: Props) {
               <LinkWrapper
                 classNames="block text-base"
                 href={ROUTES_ADMIN.base.href}
-                onClick={closeMenu}
+                onClick={() => toggle(false)}
               >
                 {ROUTES_ADMIN.base.label}
               </LinkWrapper>
               <LinkWrapper
                 classNames="block text-base"
                 href={ROUTE_HREF.SIGNOUT}
-                onClick={closeMenu}
+                onClick={() => toggle(false)}
               >
                 Sign Out
               </LinkWrapper>
@@ -128,7 +123,7 @@ export default function Navbar({ user }: Props) {
             <LinkWrapper
               classNames="block text-base"
               href={ROUTE_HREF.SIGNIN}
-              onClick={closeMenu}
+              onClick={() => toggle(false)}
             >
               Sign In
             </LinkWrapper>

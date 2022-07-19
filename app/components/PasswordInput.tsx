@@ -1,4 +1,4 @@
-import { forwardRef, useState } from "react";
+import { forwardRef, useReducer } from "react";
 import { EyeIcon, EyeOffIcon } from "@heroicons/react/outline";
 
 interface Props {
@@ -7,7 +7,7 @@ interface Props {
 
 const PasswordInput = forwardRef<HTMLInputElement, Props>(
   ({ wrapperClassName = "", ...rest }, ref) => {
-    const [showPassword, setShowPassword] = useState(false);
+    const [on, toggle] = useReducer((flag) => !flag, false);
 
     return (
       <div className={wrapperClassName}>
@@ -26,15 +26,15 @@ const PasswordInput = forwardRef<HTMLInputElement, Props>(
             name="password"
             ref={ref}
             required
-            type={showPassword ? "text" : "password"}
+            type={on ? "text" : "password"}
             {...rest}
           />
           <div
             aria-label="Show or hide password"
             className="absolute inset-y-0 right-0 flex cursor-pointer items-center pr-3"
-            onClick={() => setShowPassword((show) => !show)}
+            onClick={toggle}
           >
-            {showPassword ? (
+            {on ? (
               <EyeIcon className="h-5 w-5" />
             ) : (
               <EyeOffIcon className="h-5 w-5" />
