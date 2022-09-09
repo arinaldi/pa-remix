@@ -1,5 +1,5 @@
 import { forwardRef, useReducer } from "react";
-import { EyeIcon, EyeOffIcon } from "@heroicons/react/outline";
+import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 
 interface Props {
   wrapperClassName?: string;
@@ -37,7 +37,7 @@ const PasswordInput = forwardRef<HTMLInputElement, Props>(
             {on ? (
               <EyeIcon className="h-5 w-5" />
             ) : (
-              <EyeOffIcon className="h-5 w-5" />
+              <EyeSlashIcon className="h-5 w-5" />
             )}
           </div>
         </div>

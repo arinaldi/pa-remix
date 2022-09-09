@@ -1,12 +1,12 @@
 import { useReducer } from "react";
 import {
-  LoginIcon,
-  LogoutIcon,
-  MenuIcon,
+  ArrowLeftOnRectangleIcon,
+  ArrowRightOnRectangleIcon,
+  Bars3Icon,
   MoonIcon,
   SunIcon,
-  XIcon,
-} from "@heroicons/react/outline";
+  XMarkIcon,
+} from "@heroicons/react/24/outline";
 
 import type { User } from "@supabase/supabase-js";
 
@@ -37,8 +37,8 @@ export default function Navbar({ user }: Props) {
               type="button"
             >
               <span className="sr-only">Open main menu</span>
-              <MenuIcon className={`${open ? "hidden" : "block"} h-6 w-6`} />
-              <XIcon className={`${open ? "block" : "hidden"} h-6 w-6`} />
+              <Bars3Icon className={`${open ? "hidden" : "block"} h-6 w-6`} />
+              <XMarkIcon className={`${open ? "block" : "hidden"} h-6 w-6`} />
             </button>
           </div>
           <div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
@@ -78,11 +78,11 @@ export default function Navbar({ user }: Props) {
           <div className="absolute inset-y-0 right-0 hidden pr-2 sm:static sm:inset-auto sm:ml-0 sm:flex sm:items-center sm:pr-0">
             {user ? (
               <LinkWrapper href={ROUTE_HREF.SIGNOUT}>
-                <LogoutIcon className="h-5 w-5" />
+                <ArrowRightOnRectangleIcon className="h-5 w-5" />
               </LinkWrapper>
             ) : (
               <LinkWrapper href={ROUTE_HREF.SIGNIN}>
-                <LoginIcon className="h-5 w-5" />
+                <ArrowLeftOnRectangleIcon className="h-5 w-5" />
               </LinkWrapper>
             )}
           </div>

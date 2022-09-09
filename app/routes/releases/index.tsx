@@ -2,10 +2,10 @@ import { useState } from "react";
 import { json } from "@remix-run/node";
 import { useLoaderData, useSearchParams } from "@remix-run/react";
 import {
-  DocumentAddIcon,
+  DocumentPlusIcon,
   PencilIcon,
   TrashIcon,
-} from "@heroicons/react/outline";
+} from "@heroicons/react/24/outline";
 
 import type { LoaderFunction } from "@remix-run/node";
 import type { User } from "@supabase/supabase-js";
@@ -62,7 +62,7 @@ export default function NewReleases() {
       titleAction={
         user ? (
           <span className="rounded-md px-1.5 py-1 hover:bg-gray-200">
-            <DocumentAddIcon
+            <DocumentPlusIcon
               className="inline h-6 w-6 cursor-pointer dark:text-white"
               onClick={() => onOpen({ type: MODAL_TYPES.CREATE })}
             />

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { json } from "@remix-run/node";
 import { useLoaderData, useNavigate } from "@remix-run/react";
-import { ArrowUpIcon } from "@heroicons/react/outline";
+import { ArrowUpIcon } from "@heroicons/react/24/outline";
 
 import type { ChangeEvent } from "react";
 import type { LoaderFunction } from "@remix-run/node";

@@ -8,10 +8,10 @@ import {
 } from "@remix-run/react";
 import {
   CheckIcon,
-  DocumentAddIcon,
+  DocumentPlusIcon,
   PencilIcon,
   TrashIcon,
-} from "@heroicons/react/outline";
+} from "@heroicons/react/24/outline";
 
 import type { FormEvent } from "react";
 import type { LoaderFunction } from "@remix-run/node";
@@ -128,7 +128,7 @@ export default function Admin() {
         className="rounded-md px-1.5 py-1 hover:bg-gray-200"
         to={`${ROUTES_ADMIN.create.href}${search}`}
       >
-        <DocumentAddIcon className="inline h-6 w-6 cursor-pointer dark:text-white" />
+        <DocumentPlusIcon className="inline h-6 w-6 cursor-pointer dark:text-white" />
       </Link>
     </div>
   );
