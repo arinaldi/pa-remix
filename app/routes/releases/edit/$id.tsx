@@ -1,21 +1,13 @@
 import { json, redirect } from "@remix-run/node";
 import invariant from "tiny-invariant";
 
-import type { ActionFunction } from "@remix-run/node";
+import type { ActionArgs } from "@remix-run/node";
 
 import { MESSAGES, ROUTE_HREF } from "~/lib/constants";
 import { setAuthToken } from "~/lib/supabase/auth";
 import { editRelease } from "~/models/release.server";
 
-type ActionData = {
-  errors?: {
-    artist?: string;
-    title?: string;
-    submit?: string;
-  };
-};
-
-export const action: ActionFunction = async ({ params, request }) => {
+export const action = async ({ params, request }: ActionArgs) => {
   invariant(params.id, "Release ID not found");
 
   const formData = await request.formData();
@@ -24,17 +16,11 @@ export const action: ActionFunction = async ({ params, request }) => {
   const date = formData.get("date");
 
   if (typeof artist !== "string" || artist.length === 0) {
-    return json<ActionData>(
-      { errors: { artist: "Artist is required" } },
-      { status: 400 }
-    );
+    return json({ errors: { artist: "Artist is required" } }, { status: 400 });
   }
 
   if (typeof title !== "string" || title.length === 0) {
-    return json<ActionData>(
-      { errors: { title: "Title is required" } },
-      { status: 400 }
-    );
+    return json({ errors: { title: "Title is required" } }, { status: 400 });
   }
 
   await setAuthToken(request);
@@ -49,8 +35,5 @@ export const action: ActionFunction = async ({ params, request }) => {
     return redirect(ROUTE_HREF.NEW_RELEASES);
   }
 
-  return json<ActionData>(
-    { errors: { submit: MESSAGES.ERROR } },
-    { status: 500 }
-  );
+  return json({ errors: { submit: MESSAGES.ERROR } }, { status: 500 });
 };

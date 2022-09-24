@@ -1,19 +1,13 @@
 import { json, redirect } from "@remix-run/node";
 import invariant from "tiny-invariant";
 
-import type { ActionFunction } from "@remix-run/node";
+import type { ActionArgs } from "@remix-run/node";
 
 import { MESSAGES, ROUTE_HREF } from "~/lib/constants";
 import { setAuthToken } from "~/lib/supabase/auth";
 import { deleteRelease } from "~/models/release.server";
 
-type ActionData = {
-  errors?: {
-    submit?: string;
-  };
-};
-
-export const action: ActionFunction = async ({ params, request }) => {
+export const action = async ({ params, request }: ActionArgs) => {
   invariant(params.id, "Release ID not found");
 
   await setAuthToken(request);
@@ -24,8 +18,5 @@ export const action: ActionFunction = async ({ params, request }) => {
     return redirect(ROUTE_HREF.NEW_RELEASES);
   }
 
-  return json<ActionData>(
-    { errors: { submit: MESSAGES.ERROR } },
-    { status: 500 }
-  );
+  return json({ errors: { submit: MESSAGES.ERROR } }, { status: 500 });
 };
