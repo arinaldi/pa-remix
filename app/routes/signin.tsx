@@ -1,9 +1,9 @@
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import { Form, useActionData, useTransition } from "@remix-run/react";
 import { json, redirect } from "@remix-run/node";
 import toast from "react-hot-toast";
 
-import type { ActionFunction, LoaderFunction } from "@remix-run/server-runtime";
+import type { ActionArgs, LoaderArgs } from "@remix-run/server-runtime";
 
 import { ROUTE_HREF, ROUTES_ADMIN } from "~/lib/constants";
 import { signIn } from "~/models/user.server";
@@ -15,7 +15,7 @@ import Layout from "~/components/Layout";
 import PasswordInput from "~/components/PasswordInput";
 import SubmitButton from "~/components/SubmitButton";
 
-export const loader: LoaderFunction = async ({ request }) => {
+export const loader = async ({ request }: LoaderArgs) => {
   const user = await getUser(request);
 
   if (user) {
@@ -25,31 +25,17 @@ export const loader: LoaderFunction = async ({ request }) => {
   return null;
 };
 
-type ActionData = {
-  errors?: {
-    email?: string;
-    password?: string;
-    submit?: string;
-  };
-};
-
-export const action: ActionFunction = async ({ request }) => {
+export const action = async ({ request }: ActionArgs) => {
   const formData = await request.formData();
   const email = formData.get("email");
   const password = formData.get("password");
 
   if (!isEmailValid(email)) {
-    return json<ActionData>(
-      { errors: { email: "Email is invalid" } },
-      { status: 400 }
-    );
+    return json({ submit: "Email is invalid" });
   }
 
   if (typeof password !== "string" || password.length === 0) {
-    return json<ActionData>(
-      { errors: { password: "Password is required" } },
-      { status: 400 }
-    );
+    return json({ submit: "Password is required" });
   }
 
   const { error, session } = await signIn(email, password);
@@ -66,32 +52,19 @@ export const action: ActionFunction = async ({ request }) => {
   }
 
   if (error) {
-    return json<ActionData>(
-      { errors: { submit: "Invalid credentials" } },
-      { status: 401 }
-    );
+    return json({ submit: "Invalid credentials" });
   }
 };
 
 export default function SignIn() {
-  const actionData = useActionData() as ActionData;
+  const errors = useActionData();
   const { state } = useTransition();
-  const emailRef = useRef<HTMLInputElement>(null);
-  const passwordRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (actionData?.errors?.email) {
-      emailRef.current?.focus();
-    } else if (actionData?.errors?.password) {
-      passwordRef.current?.focus();
+    if (errors?.submit) {
+      toast.error(errors.submit);
     }
-  }, [actionData]);
-
-  useEffect(() => {
-    if (actionData?.errors?.submit) {
-      toast.error(actionData.errors.submit);
-    }
-  }, [actionData]);
+  }, [errors?.submit]);
 
   return (
     <Layout maxWidth="max-w-sm" title="Sign In">
@@ -99,14 +72,8 @@ export default function SignIn() {
         <div className="bg-white dark:bg-gray-800">
           <div className="grid grid-cols-6 gap-6">
             <div className="col-span-6">
-              <Input
-                id="email"
-                ref={emailRef}
-                required
-                type="email"
-                wrapperClassName="mt-4"
-              />
-              <PasswordInput ref={passwordRef} wrapperClassName="mt-4" />
+              <Input id="email" required type="email" wrapperClassName="mt-4" />
+              <PasswordInput wrapperClassName="mt-4" />
             </div>
           </div>
         </div>

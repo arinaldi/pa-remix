@@ -7,8 +7,7 @@ import {
   TrashIcon,
 } from "@heroicons/react/24/outline";
 
-import type { LoaderFunction } from "@remix-run/node";
-import type { User } from "@supabase/supabase-js";
+import type { LoaderArgs } from "@remix-run/node";
 import type { Release } from "~/models/release.server";
 
 import { MODAL_TYPES } from "~/lib/constants";
@@ -21,16 +20,11 @@ import DeleteRelease from "~/components/modals/DeleteRelease";
 import EditRelease from "~/components/modals/EditRelease";
 import Layout from "~/components/Layout";
 
-type LoaderData = {
-  releases: Awaited<ReturnType<typeof getReleases>>;
-  user: User | null;
-};
-
-export const loader: LoaderFunction = async ({ request }) => {
+export const loader = async ({ request }: LoaderArgs) => {
   const releases = await getReleases();
   const user = await getUser(request);
 
-  return json<LoaderData>({ releases, user });
+  return json({ releases, user });
 };
 
 type ModalState = Release | null;
@@ -39,7 +33,7 @@ type ModalOpen =
   | { data: Release; type: MODAL_TYPES.DELETE | MODAL_TYPES.EDIT };
 
 export default function NewReleases() {
-  const { releases, user } = useLoaderData<LoaderData>();
+  const { releases, user } = useLoaderData<typeof loader>();
   const [searchParams, setSearchParams] = useSearchParams();
   const type = parseQuery(searchParams.get("type"));
   const [modal, setModal] = useState<ModalState>(null);

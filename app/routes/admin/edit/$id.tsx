@@ -2,7 +2,7 @@ import { json, redirect } from "@remix-run/node";
 import { useLoaderData, useLocation } from "@remix-run/react";
 import invariant from "tiny-invariant";
 
-import type { ActionFunction, LoaderFunction } from "@remix-run/node";
+import type { ActionArgs, LoaderArgs } from "@remix-run/node";
 
 import { MESSAGES, ROUTE_HREF, ROUTES_ADMIN } from "~/lib/constants";
 import { getUser, setAuthToken } from "~/lib/supabase/auth";
@@ -10,11 +10,7 @@ import { editAlbum, getAlbum } from "~/models/album.server";
 import AlbumForm from "~/components/AlbumForm";
 import Layout from "~/components/Layout";
 
-type LoaderData = {
-  album: Awaited<ReturnType<typeof getAlbum>>;
-};
-
-export const loader: LoaderFunction = async ({ params, request }) => {
+export const loader = async ({ params, request }: LoaderArgs) => {
   const user = await getUser(request);
 
   if (!user) {
@@ -26,19 +22,10 @@ export const loader: LoaderFunction = async ({ params, request }) => {
   const id = parseInt(params.id);
   const album = await getAlbum(id);
 
-  return json<LoaderData>({ album });
+  return json({ album });
 };
 
-type ActionData = {
-  errors?: {
-    artist?: string;
-    title?: string;
-    year?: string;
-    submit?: string;
-  };
-};
-
-export const action: ActionFunction = async ({ params, request }) => {
+export const action = async ({ params, request }: ActionArgs) => {
   invariant(params.id, "Album ID not found");
 
   const formData = await request.formData();
@@ -50,24 +37,15 @@ export const action: ActionFunction = async ({ params, request }) => {
   const studio = formData.get("studio");
 
   if (typeof artist !== "string" || artist.length === 0) {
-    return json<ActionData>(
-      { errors: { artist: "Artist is required" } },
-      { status: 400 }
-    );
+    return json({ errors: { artist: "Artist is required" } }, { status: 400 });
   }
 
   if (typeof title !== "string" || title.length === 0) {
-    return json<ActionData>(
-      { errors: { title: "Title is required" } },
-      { status: 400 }
-    );
+    return json({ errors: { title: "Title is required" } }, { status: 400 });
   }
 
   if (typeof year !== "string" || year.length === 0) {
-    return json<ActionData>(
-      { errors: { title: "Year is invalid" } },
-      { status: 400 }
-    );
+    return json({ errors: { title: "Year is invalid" } }, { status: 400 });
   }
 
   const id = parseInt(params.id as string);
@@ -86,14 +64,11 @@ export const action: ActionFunction = async ({ params, request }) => {
     return redirect(`${ROUTES_ADMIN.base.href}${url.search}`);
   }
 
-  return json<ActionData>(
-    { errors: { submit: MESSAGES.ERROR } },
-    { status: 500 }
-  );
+  return json({ errors: { submit: MESSAGES.ERROR } }, { status: 500 });
 };
 
 export default function EditAlbum() {
-  const { album } = useLoaderData<LoaderData>();
+  const { album } = useLoaderData<typeof loader>();
   const { pathname, search } = useLocation();
 
   return (

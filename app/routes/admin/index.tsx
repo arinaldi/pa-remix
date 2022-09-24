@@ -14,7 +14,7 @@ import {
 } from "@heroicons/react/24/outline";
 
 import type { FormEvent } from "react";
-import type { LoaderFunction } from "@remix-run/node";
+import type { LoaderArgs } from "@remix-run/node";
 
 import {
   APP_MESSAGE_TYPES,
@@ -36,13 +36,7 @@ import SortableColumn from "~/components/SortableColumn";
 import SubmitButton from "~/components/SubmitButton";
 import StudioFilter from "~/components/StudioFilter";
 
-type AlbumData = Awaited<ReturnType<typeof getAlbums>>;
-type LoaderData = AlbumData & {
-  cdTotal: Awaited<ReturnType<typeof getCdCount>>;
-  version: string;
-};
-
-export const loader: LoaderFunction = async ({ request }) => {
+export const loader = async ({ request }: LoaderArgs) => {
   const user = await getUser(request);
 
   if (!user) {
@@ -59,7 +53,7 @@ export const loader: LoaderFunction = async ({ request }) => {
     title: parseQuery(url.searchParams.get("title")),
   });
 
-  return json<LoaderData>({
+  return json({
     albums,
     cdTotal: await getCdCount(),
     total,
@@ -68,7 +62,7 @@ export const loader: LoaderFunction = async ({ request }) => {
 };
 
 export default function Admin() {
-  const { albums, cdTotal, total, version } = useLoaderData<LoaderData>();
+  const { albums, cdTotal, total, version } = useLoaderData<typeof loader>();
   const { search } = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
   const params = Object.fromEntries(searchParams.entries());

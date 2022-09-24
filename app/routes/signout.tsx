@@ -1,12 +1,12 @@
 import { json, redirect } from "@remix-run/node";
-import type { LoaderFunction, Request } from "@remix-run/node";
+import type { LoaderArgs, Request } from "@remix-run/node";
 
 import { MESSAGES } from "~/lib/constants";
 import { signOut } from "~/models/user.server";
 import { supabaseToken } from "~/lib/supabase/cookie";
 import { ROUTE_HREF } from "~/lib/constants";
 
-export const loader: LoaderFunction = async ({ request }) => {
+export const loader = async ({ request }: LoaderArgs) => {
   try {
     await signOut(request as Request);
 

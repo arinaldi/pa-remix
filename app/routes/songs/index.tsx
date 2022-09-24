@@ -3,8 +3,7 @@ import { json } from "@remix-run/node";
 import { useLoaderData, useSearchParams } from "@remix-run/react";
 import { DocumentPlusIcon, TrashIcon } from "@heroicons/react/24/outline";
 
-import type { LoaderFunction } from "@remix-run/node";
-import type { User } from "@supabase/supabase-js";
+import type { LoaderArgs } from "@remix-run/node";
 import type { Song } from "~/models/song.server";
 
 import { MODAL_TYPES } from "~/lib/constants";
@@ -15,16 +14,11 @@ import CreateSong from "~/components/modals/CreateSong";
 import DeleteSong from "~/components/modals/DeleteSong";
 import Layout from "~/components/Layout";
 
-type LoaderData = {
-  songs: Awaited<ReturnType<typeof getSongs>>;
-  user: User | null;
-};
-
-export const loader: LoaderFunction = async ({ request }) => {
+export const loader = async ({ request }: LoaderArgs) => {
   const songs = await getSongs();
   const user = await getUser(request);
 
-  return json<LoaderData>({ songs, user });
+  return json({ songs, user });
 };
 
 type ModalState = Song | null;
@@ -33,7 +27,7 @@ type ModalOpen =
   | { data: Song; type: MODAL_TYPES.DELETE };
 
 export default function FeaturedSongs() {
-  const { songs, user } = useLoaderData<LoaderData>();
+  const { songs, user } = useLoaderData<typeof loader>();
   const [searchParams, setSearchParams] = useSearchParams();
   const type = parseQuery(searchParams.get("type"));
   const [modal, setModal] = useState<ModalState>(null);

@@ -4,25 +4,20 @@ import { useLoaderData, useNavigate } from "@remix-run/react";
 import { ArrowUpIcon } from "@heroicons/react/24/outline";
 
 import type { ChangeEvent } from "react";
-import type { LoaderFunction } from "@remix-run/node";
 
 import { getFavorites } from "~/models/album.server";
 import { DECADES, ROUTE_HREF, SPOTIFY_URL } from "~/lib/constants";
 import { formatFavorites, sortDesc } from "~/lib/utils";
 import Layout from "~/components/Layout";
 
-type LoaderData = {
-  favorites: Awaited<ReturnType<typeof getFavorites>>;
-};
-
-export const loader: LoaderFunction = async () => {
+export const loader = async () => {
   const favorites = await getFavorites();
 
-  return json<LoaderData>({ favorites });
+  return json({ favorites });
 };
 
 export default function TopAlbums() {
-  const { favorites } = useLoaderData<LoaderData>();
+  const { favorites } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
   const [value, setValue] = useState("label");
 

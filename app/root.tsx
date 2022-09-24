@@ -11,7 +11,7 @@ import {
 import type {
   HeadersFunction,
   LinksFunction,
-  LoaderFunction,
+  LoaderArgs,
   MetaFunction,
 } from "@remix-run/node";
 
@@ -42,18 +42,14 @@ export const meta: MetaFunction = () => ({
   viewport: "width=device-width,initial-scale=1",
 });
 
-type LoaderData = {
-  user: Awaited<ReturnType<typeof getUser>>;
-};
-
-export const loader: LoaderFunction = async ({ request }) => {
+export const loader = async ({ request }: LoaderArgs) => {
   const user = await getUser(request);
 
-  return json<LoaderData>({ user });
+  return json({ user });
 };
 
 export default function App() {
-  const { user } = useLoaderData();
+  const { user } = useLoaderData<typeof loader>();
   useNProgress();
 
   return (
