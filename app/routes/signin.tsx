@@ -1,58 +1,74 @@
 import { useEffect } from "react";
 import { Form, useActionData, useTransition } from "@remix-run/react";
 import { json, redirect } from "@remix-run/node";
+import { createServerClient } from "@supabase/auth-helpers-remix";
 import toast from "react-hot-toast";
 
-import type { ActionArgs, LoaderArgs } from "@remix-run/server-runtime";
+import type { ActionFunction, LoaderFunction } from "@remix-run/server-runtime";
 
 import { ROUTE_HREF, ROUTES_ADMIN } from "~/lib/constants";
-import { signIn } from "~/models/user.server";
-import { getUser } from "~/lib/supabase/auth";
-import { supabaseToken } from "~/lib/supabase/cookie";
 import { isEmailValid } from "~/lib/utils";
 import Input from "~/components/Input";
 import Layout from "~/components/Layout";
 import PasswordInput from "~/components/PasswordInput";
 import SubmitButton from "~/components/SubmitButton";
 
-export const loader = async ({ request }: LoaderArgs) => {
-  const user = await getUser(request);
+export const loader: LoaderFunction = async ({ request }) => {
+  const response = new Response();
+  const supabase = createServerClient(
+    process.env.SUPABASE_URL!,
+    process.env.SUPABASE_ANON_KEY!,
+    { request, response }
+  );
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
 
-  if (user) {
-    return redirect(ROUTE_HREF.NEW_RELEASES);
+  if (session?.user) {
+    return redirect(ROUTES_ADMIN.base.href, { headers: response.headers });
   }
 
   return null;
 };
 
-export const action = async ({ request }: ActionArgs) => {
+export const action: ActionFunction = async ({ request }) => {
+  const response = new Response();
+  const supabase = createServerClient(
+    process.env.SUPABASE_URL!,
+    process.env.SUPABASE_ANON_KEY!,
+    { request, response }
+  );
   const formData = await request.formData();
   const email = formData.get("email");
   const password = formData.get("password");
 
   if (!isEmailValid(email)) {
-    return json({ submit: "Email is invalid" });
+    return json({ submit: "Email is invalid" }, { headers: response.headers });
   }
 
   if (typeof password !== "string" || password.length === 0) {
-    return json({ submit: "Password is required" });
+    return json(
+      { submit: "Password is required" },
+      { headers: response.headers }
+    );
   }
 
-  const { error, session } = await signIn(email, password);
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  });
 
-  if (session) {
-    return redirect(ROUTES_ADMIN.base.href, {
-      headers: {
-        "Set-Cookie": await supabaseToken.serialize(session.access_token, {
-          expires: new Date(session.expires_at || ""),
-          maxAge: session.expires_in,
-        }),
-      },
+  if (data.session) {
+    return redirect(ROUTE_HREF.NEW_RELEASES, {
+      headers: response.headers,
     });
   }
 
   if (error) {
-    return json({ submit: "Invalid credentials" });
+    return json(
+      { submit: "Invalid credentials" },
+      { headers: response.headers }
+    );
   }
 };
 

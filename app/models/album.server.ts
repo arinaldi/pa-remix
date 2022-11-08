@@ -1,7 +1,8 @@
+import type { SupabaseClient } from "@supabase/supabase-js";
+
 import type { PER_PAGE } from "~/lib/constants";
 
 import { SORT_DIRECTION } from "~/lib/constants";
-import { supabase } from "~/lib/supabase";
 
 const { ASC, DESC } = SORT_DIRECTION;
 
@@ -18,33 +19,34 @@ export interface Album {
 
 type AlbumInput = Omit<Album, "id" | "created_at">;
 
-export async function createAlbum(input: AlbumInput) {
-  const { error } = await supabase.from<Album>("albums").insert([input]);
+export async function createAlbum(supabase: SupabaseClient, input: AlbumInput) {
+  const { error } = await supabase.from("albums").insert([input]);
 
   if (error) throw error;
   return true;
 }
 
-export async function editAlbum(id: number, input: AlbumInput) {
-  const { error } = await supabase
-    .from<Album>("albums")
-    .update(input)
-    .eq("id", id);
+export async function editAlbum(
+  supabase: SupabaseClient,
+  id: number,
+  input: AlbumInput
+) {
+  const { error } = await supabase.from("albums").update(input).eq("id", id);
 
   if (error) throw error;
   return true;
 }
 
-export async function deleteAlbum(id: number) {
-  const { error } = await supabase.from<Album>("albums").delete().eq("id", id);
+export async function deleteAlbum(supabase: SupabaseClient, id: number) {
+  const { error } = await supabase.from("albums").delete().eq("id", id);
 
   if (error) throw error;
   return true;
 }
 
-export async function getCdCount() {
+export async function getCdCount(supabase: SupabaseClient) {
   const { count, error } = await supabase
-    .from<Album>("albums")
+    .from("albums")
     .select("*", { count: "exact", head: true })
     .eq("cd", true);
 
@@ -53,9 +55,9 @@ export async function getCdCount() {
   return 0;
 }
 
-export async function getFavorites() {
+export async function getFavorites(supabase: SupabaseClient) {
   const { data: favorites, error } = await supabase
-    .from<Album>("albums")
+    .from("albums")
     .select("*")
     .eq("favorite", true)
     .order("artist", { ascending: true });
@@ -65,9 +67,9 @@ export async function getFavorites() {
   return [];
 }
 
-export async function getAlbum(id: number) {
+export async function getAlbum(supabase: SupabaseClient, id: number) {
   const { data: album, error } = await supabase
-    .from<Album>("albums")
+    .from("albums")
     .select("*")
     .eq("id", id)
     .single();
@@ -85,7 +87,7 @@ interface Queries {
   title: string;
 }
 
-export async function getAlbums(queries: Queries) {
+export async function getAlbums(supabase: SupabaseClient, queries: Queries) {
   const { artist, page, perPage, sort, studio, title } = queries;
   const [sortProp, desc] = sort.split(":") ?? [];
   const direction = desc ? DESC : ASC;

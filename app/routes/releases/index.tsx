@@ -1,30 +1,46 @@
 import { useState } from "react";
 import { json } from "@remix-run/node";
 import { useLoaderData, useSearchParams } from "@remix-run/react";
+import { createServerClient } from "@supabase/auth-helpers-remix";
 import {
   DocumentPlusIcon,
   PencilIcon,
   TrashIcon,
 } from "@heroicons/react/24/outline";
 
-import type { LoaderArgs } from "@remix-run/node";
+import type { LoaderFunction } from "@remix-run/node";
+import type { User } from "@supabase/auth-helpers-remix";
 import type { Release } from "~/models/release.server";
 
 import { MODAL_TYPES } from "~/lib/constants";
-import { getUser } from "~/lib/supabase/auth";
-import { parseQuery } from "~/lib/utils";
+import { formatReleases, parseQuery, sortByDate } from "~/lib/utils";
 import { getReleases } from "~/models/release.server";
-import { formatReleases, sortByDate } from "~/lib/utils";
 import CreateRelease from "~/components/modals/CreateRelease";
 import DeleteRelease from "~/components/modals/DeleteRelease";
 import EditRelease from "~/components/modals/EditRelease";
 import Layout from "~/components/Layout";
 
-export const loader = async ({ request }: LoaderArgs) => {
-  const releases = await getReleases();
-  const user = await getUser(request);
+export const loader: LoaderFunction = async ({ request }) => {
+  const response = new Response();
+  const supabase = createServerClient(
+    process.env.SUPABASE_URL!,
+    process.env.SUPABASE_ANON_KEY!,
+    { request, response }
+  );
+  const releases = await getReleases(supabase);
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
 
-  return json({ releases, user });
+  return json(
+    {
+      releases,
+      user: session?.user,
+    },
+    {
+      headers: response.headers,
+    }
+  );
 };
 
 type ModalState = Release | null;
@@ -32,8 +48,13 @@ type ModalOpen =
   | { data?: null; type: MODAL_TYPES.CREATE }
   | { data: Release; type: MODAL_TYPES.DELETE | MODAL_TYPES.EDIT };
 
+interface Props {
+  releases: Release[];
+  user: User | undefined;
+}
+
 export default function NewReleases() {
-  const { releases, user } = useLoaderData<typeof loader>();
+  const { releases, user } = useLoaderData<Props>();
   const [searchParams, setSearchParams] = useSearchParams();
   const type = parseQuery(searchParams.get("type"));
   const [modal, setModal] = useState<ModalState>(null);

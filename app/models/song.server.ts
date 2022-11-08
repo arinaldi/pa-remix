@@ -1,4 +1,4 @@
-import { supabase } from "~/lib/supabase";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
 export interface Song {
   id: number;
@@ -8,9 +8,9 @@ export interface Song {
   link: string;
 }
 
-export async function getSongs() {
+export async function getSongs(supabase: SupabaseClient) {
   const { data: songs, error } = await supabase
-    .from<Song>("songs")
+    .from("songs")
     .select("*")
     .order("created_at", { ascending: false });
 
@@ -21,15 +21,15 @@ export async function getSongs() {
 
 type SongInput = Omit<Song, "id" | "created_at">;
 
-export async function createSong(input: SongInput) {
-  const { error } = await supabase.from<Song>("songs").insert([input]);
+export async function createSong(supabase: SupabaseClient, input: SongInput) {
+  const { error } = await supabase.from("songs").insert([input]);
 
   if (error) throw error;
   return true;
 }
 
-export async function deleteSong(id: number) {
-  const { error } = await supabase.from<Song>("songs").delete().eq("id", id);
+export async function deleteSong(supabase: SupabaseClient, id: number) {
+  const { error } = await supabase.from("songs").delete().eq("id", id);
 
   if (error) throw error;
   return true;

@@ -6,49 +6,70 @@ import {
   useNavigate,
   useTransition,
 } from "@remix-run/react";
+import { createServerClient } from "@supabase/auth-helpers-remix";
 import invariant from "tiny-invariant";
 
-import type { ActionArgs, LoaderArgs } from "@remix-run/node";
+import type { ActionFunction, LoaderFunction } from "@remix-run/node";
+import type { Album } from "~/models/album.server";
 
 import { MESSAGES, ROUTE_HREF, ROUTES_ADMIN } from "~/lib/constants";
-import { getUser, setAuthToken } from "~/lib/supabase/auth";
 import { deleteAlbum, getAlbum } from "~/models/album.server";
 import CancelButton from "~/components/CancelButton";
 import Layout from "~/components/Layout";
 import SubmitButton from "~/components/SubmitButton";
 
-export const loader = async ({ params, request }: LoaderArgs) => {
-  const user = await getUser(request);
+export const loader: LoaderFunction = async ({ params, request }) => {
+  const response = new Response();
+  const supabase = createServerClient(
+    process.env.SUPABASE_URL!,
+    process.env.SUPABASE_ANON_KEY!,
+    { request, response }
+  );
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
 
-  if (!user) {
-    return redirect(ROUTE_HREF.TOP_ALBUMS);
+  if (!session?.user) {
+    return redirect(ROUTE_HREF.TOP_ALBUMS, { headers: response.headers });
   }
 
   invariant(params.id, "Album ID not found");
 
-  const id = parseInt(params.id);
-  const album = await getAlbum(id);
+  const album = await getAlbum(supabase, parseInt(params.id));
 
-  return json({ album });
+  return json({ album }, { headers: response.headers });
 };
 
-export const action = async ({ params, request }: ActionArgs) => {
+export const action: ActionFunction = async ({ params, request }) => {
   invariant(params.id, "Album ID not found");
 
-  await setAuthToken(request);
-  const id = parseInt(params.id);
-  const success = await deleteAlbum(id);
+  const response = new Response();
+  const supabase = createServerClient(
+    process.env.SUPABASE_URL!,
+    process.env.SUPABASE_ANON_KEY!,
+    { request, response }
+  );
+  const success = await deleteAlbum(supabase, parseInt(params.id));
 
   if (success) {
     const url = new URL(request.url);
-    return redirect(`${ROUTES_ADMIN.base.href}${url.search}`);
+    return redirect(`${ROUTES_ADMIN.base.href}${url.search}`, {
+      headers: response.headers,
+    });
   }
 
-  return json({ errors: { submit: MESSAGES.ERROR } }, { status: 500 });
+  return json(
+    { errors: { submit: MESSAGES.ERROR } },
+    { headers: response.headers, status: 500 }
+  );
 };
 
+interface Props {
+  album: Album;
+}
+
 export default function DeleteAlbum() {
-  const { album } = useLoaderData<typeof loader>();
+  const { album } = useLoaderData<Props>();
   const { pathname, search } = useLocation();
   const navigate = useNavigate();
   const { state } = useTransition();

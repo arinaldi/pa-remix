@@ -8,15 +8,17 @@ import {
   ScrollRestoration,
   useLoaderData,
 } from "@remix-run/react";
+import { createServerClient } from "@supabase/auth-helpers-remix";
+
 import type {
   HeadersFunction,
   LinksFunction,
-  LoaderArgs,
+  LoaderFunction,
   MetaFunction,
 } from "@remix-run/node";
+import type { User } from "@supabase/auth-helpers-remix";
 
 import useNProgress from "~/hooks/useNProgress";
-import { getUser } from "~/lib/supabase/auth";
 import Navbar from "~/components/Navbar";
 import Toast from "~/components/Toast";
 import tailwindStylesheetUrl from "~/styles/tailwind.css";
@@ -42,14 +44,26 @@ export const meta: MetaFunction = () => ({
   viewport: "width=device-width,initial-scale=1",
 });
 
-export const loader = async ({ request }: LoaderArgs) => {
-  const user = await getUser(request);
+export const loader: LoaderFunction = async ({ request }) => {
+  const response = new Response();
+  const supabase = createServerClient(
+    process.env.SUPABASE_URL!,
+    process.env.SUPABASE_ANON_KEY!,
+    { request, response }
+  );
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
 
-  return json({ user });
+  return json({ user: session?.user }, { headers: response.headers });
 };
 
+interface Props {
+  user: User | undefined;
+}
+
 export default function App() {
-  const { user } = useLoaderData<typeof loader>();
+  const { user } = useLoaderData<Props>();
   useNProgress();
 
   return (
