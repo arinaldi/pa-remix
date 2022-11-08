@@ -15,7 +15,7 @@ import { ROUTES, ROUTES_ADMIN, ROUTE_HREF } from "~/lib/constants";
 import LinkWrapper from "~/components/LinkWrapper";
 
 interface Props {
-  user: User | null;
+  user: User | undefined;
 }
 
 export default function Navbar({ user }: Props) {

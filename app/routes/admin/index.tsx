@@ -6,6 +6,7 @@ import {
   useLocation,
   useSearchParams,
 } from "@remix-run/react";
+import { createServerClient } from "@supabase/auth-helpers-remix";
 import {
   CheckIcon,
   DocumentPlusIcon,
@@ -14,7 +15,8 @@ import {
 } from "@heroicons/react/24/outline";
 
 import type { FormEvent } from "react";
-import type { LoaderArgs } from "@remix-run/node";
+import type { LoaderFunction } from "@remix-run/node";
+import type { Album } from "~/models/album.server";
 
 import {
   APP_MESSAGE_TYPES,
@@ -23,7 +25,6 @@ import {
   ROUTES_ADMIN,
   SORT_VALUE,
 } from "~/lib/constants";
-import { getUser } from "~/lib/supabase/auth";
 import { parseQuery, parsePageQuery, parsePerPageQuery } from "~/lib/utils";
 import { getAlbums, getCdCount } from "~/models/album.server";
 import AppMessage from "~/components/AppMessage";
@@ -36,15 +37,23 @@ import SortableColumn from "~/components/SortableColumn";
 import SubmitButton from "~/components/SubmitButton";
 import StudioFilter from "~/components/StudioFilter";
 
-export const loader = async ({ request }: LoaderArgs) => {
-  const user = await getUser(request);
+export const loader: LoaderFunction = async ({ request }) => {
+  const response = new Response();
+  const supabase = createServerClient(
+    process.env.SUPABASE_URL!,
+    process.env.SUPABASE_ANON_KEY!,
+    { request, response }
+  );
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
 
-  if (!user) {
-    return redirect(ROUTE_HREF.TOP_ALBUMS);
+  if (!session?.user) {
+    return redirect(ROUTE_HREF.TOP_ALBUMS, { headers: response.headers });
   }
 
   const url = new URL(request.url);
-  const { albums, total } = await getAlbums({
+  const { albums, total } = await getAlbums(supabase, {
     artist: parseQuery(url.searchParams.get("artist")),
     page: parsePageQuery(url.searchParams.get("page")),
     perPage: parsePerPageQuery(url.searchParams.get("perPage")),
@@ -53,16 +62,26 @@ export const loader = async ({ request }: LoaderArgs) => {
     title: parseQuery(url.searchParams.get("title")),
   });
 
-  return json({
-    albums,
-    cdTotal: await getCdCount(),
-    total,
-    version: process.env.APP_VERSION as string,
-  });
+  return json(
+    {
+      albums,
+      cdTotal: await getCdCount(supabase),
+      total,
+      version: process.env.APP_VERSION as string,
+    },
+    { headers: response.headers }
+  );
 };
 
+interface Props {
+  albums: Album[];
+  cdTotal: number;
+  total: number;
+  version: string;
+}
+
 export default function Admin() {
-  const { albums, cdTotal, total, version } = useLoaderData<typeof loader>();
+  const { albums, cdTotal, total, version } = useLoaderData<Props>();
   const { search } = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
   const params = Object.fromEntries(searchParams.entries());

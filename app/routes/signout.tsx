@@ -1,25 +1,29 @@
 import { json, redirect } from "@remix-run/node";
-import type { LoaderArgs, Request } from "@remix-run/node";
+import { createServerClient } from "@supabase/auth-helpers-remix";
 
-import { MESSAGES } from "~/lib/constants";
-import { signOut } from "~/models/user.server";
-import { supabaseToken } from "~/lib/supabase/cookie";
+import type { LoaderFunction } from "@remix-run/server-runtime";
+
 import { ROUTE_HREF } from "~/lib/constants";
 
-export const loader = async ({ request }: LoaderArgs) => {
-  try {
-    await signOut(request as Request);
+export const loader: LoaderFunction = async ({ request }) => {
+  const response = new Response();
+  const supabase = createServerClient(
+    process.env.SUPABASE_URL!,
+    process.env.SUPABASE_ANON_KEY!,
+    { request, response }
+  );
+  const { error } = await supabase.auth.signOut();
 
+  if (error) {
+    return json(
+      { error },
+      {
+        headers: response.headers,
+      }
+    );
+  } else {
     return redirect(ROUTE_HREF.TOP_ALBUMS, {
-      headers: {
-        "Set-Cookie": await supabaseToken.serialize("", {
-          maxAge: 0,
-        }),
-      },
+      headers: response.headers,
     });
-  } catch (error) {
-    const message = error instanceof Error ? error.message : MESSAGES.ERROR;
-
-    return json({ error: message }, { status: 500 });
   }
 };
