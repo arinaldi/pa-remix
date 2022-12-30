@@ -8,7 +8,6 @@ import {
   ScrollRestoration,
   useLoaderData,
 } from "@remix-run/react";
-import { createServerClient } from "@supabase/auth-helpers-remix";
 
 import type {
   HeadersFunction,
@@ -19,6 +18,7 @@ import type {
 import type { User } from "@supabase/auth-helpers-remix";
 
 import useNProgress from "~/hooks/useNProgress";
+import createServerSupabase from "~/lib/supabase.server";
 import Navbar from "~/components/Navbar";
 import Toast from "~/components/Toast";
 import tailwindStylesheetUrl from "~/styles/tailwind.css";
@@ -46,11 +46,7 @@ export const meta: MetaFunction = () => ({
 
 export const loader: LoaderFunction = async ({ request }) => {
   const response = new Response();
-  const supabase = createServerClient(
-    process.env.SUPABASE_URL!,
-    process.env.SUPABASE_ANON_KEY!,
-    { request, response }
-  );
+  const supabase = createServerSupabase({ request, response });
   const {
     data: { session },
   } = await supabase.auth.getSession();

@@ -6,13 +6,13 @@ import {
   useNavigate,
   useTransition,
 } from "@remix-run/react";
-import { createServerClient } from "@supabase/auth-helpers-remix";
 import invariant from "tiny-invariant";
 
 import type { ActionFunction, LoaderFunction } from "@remix-run/node";
-import type { Album } from "~/models/album.server";
+import type { Album } from "~/lib/db-types";
 
 import { MESSAGES, ROUTE_HREF, ROUTES_ADMIN } from "~/lib/constants";
+import createServerSupabase from "~/lib/supabase.server";
 import { deleteAlbum, getAlbum } from "~/models/album.server";
 import CancelButton from "~/components/CancelButton";
 import Layout from "~/components/Layout";
@@ -20,11 +20,7 @@ import SubmitButton from "~/components/SubmitButton";
 
 export const loader: LoaderFunction = async ({ params, request }) => {
   const response = new Response();
-  const supabase = createServerClient(
-    process.env.SUPABASE_URL!,
-    process.env.SUPABASE_ANON_KEY!,
-    { request, response }
-  );
+  const supabase = createServerSupabase({ request, response });
   const {
     data: { session },
   } = await supabase.auth.getSession();
@@ -44,11 +40,7 @@ export const action: ActionFunction = async ({ params, request }) => {
   invariant(params.id, "Album ID not found");
 
   const response = new Response();
-  const supabase = createServerClient(
-    process.env.SUPABASE_URL!,
-    process.env.SUPABASE_ANON_KEY!,
-    { request, response }
-  );
+  const supabase = createServerSupabase({ request, response });
   const success = await deleteAlbum(supabase, parseInt(params.id));
 
   if (success) {

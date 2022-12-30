@@ -6,7 +6,6 @@ import {
   useLocation,
   useSearchParams,
 } from "@remix-run/react";
-import { createServerClient } from "@supabase/auth-helpers-remix";
 import {
   CheckIcon,
   DocumentPlusIcon,
@@ -16,7 +15,7 @@ import {
 
 import type { FormEvent } from "react";
 import type { LoaderFunction } from "@remix-run/node";
-import type { Album } from "~/models/album.server";
+import type { Album } from "~/lib/db-types";
 
 import {
   APP_MESSAGE_TYPES,
@@ -25,6 +24,7 @@ import {
   ROUTES_ADMIN,
   SORT_VALUE,
 } from "~/lib/constants";
+import createServerSupabase from "~/lib/supabase.server";
 import { parseQuery, parsePageQuery, parsePerPageQuery } from "~/lib/utils";
 import { getAlbums, getCdCount } from "~/models/album.server";
 import AppMessage from "~/components/AppMessage";
@@ -39,11 +39,7 @@ import StudioFilter from "~/components/StudioFilter";
 
 export const loader: LoaderFunction = async ({ request }) => {
   const response = new Response();
-  const supabase = createServerClient(
-    process.env.SUPABASE_URL!,
-    process.env.SUPABASE_ANON_KEY!,
-    { request, response }
-  );
+  const supabase = createServerSupabase({ request, response });
   const {
     data: { session },
   } = await supabase.auth.getSession();
@@ -134,7 +130,7 @@ export default function Admin() {
     <div className="flex items-center dark:text-white">
       <code className="mr-3">{version}</code>
       <span className="text-md mr-1 rounded-md bg-gray-100 px-1 font-semibold dark:bg-gray-700 sm:text-lg">
-        {cdTotal}
+        {cdTotal.toLocaleString()}
       </span>
       <span className="mr-3">CDs</span>
       <Link

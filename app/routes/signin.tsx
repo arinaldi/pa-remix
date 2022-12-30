@@ -1,12 +1,12 @@
 import { useEffect } from "react";
 import { Form, useActionData, useTransition } from "@remix-run/react";
 import { json, redirect } from "@remix-run/node";
-import { createServerClient } from "@supabase/auth-helpers-remix";
 import toast from "react-hot-toast";
 
 import type { ActionFunction, LoaderFunction } from "@remix-run/server-runtime";
 
 import { ROUTE_HREF, ROUTES_ADMIN } from "~/lib/constants";
+import createServerSupabase from "~/lib/supabase.server";
 import { isEmailValid } from "~/lib/utils";
 import Input from "~/components/Input";
 import Layout from "~/components/Layout";
@@ -15,11 +15,7 @@ import SubmitButton from "~/components/SubmitButton";
 
 export const loader: LoaderFunction = async ({ request }) => {
   const response = new Response();
-  const supabase = createServerClient(
-    process.env.SUPABASE_URL!,
-    process.env.SUPABASE_ANON_KEY!,
-    { request, response }
-  );
+  const supabase = createServerSupabase({ request, response });
   const {
     data: { session },
   } = await supabase.auth.getSession();
@@ -33,11 +29,7 @@ export const loader: LoaderFunction = async ({ request }) => {
 
 export const action: ActionFunction = async ({ request }) => {
   const response = new Response();
-  const supabase = createServerClient(
-    process.env.SUPABASE_URL!,
-    process.env.SUPABASE_ANON_KEY!,
-    { request, response }
-  );
+  const supabase = createServerSupabase({ request, response });
   const formData = await request.formData();
   const email = formData.get("email");
   const password = formData.get("password");

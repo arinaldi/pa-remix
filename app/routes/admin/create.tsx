@@ -1,21 +1,17 @@
 import { json, redirect } from "@remix-run/node";
 import { useLocation } from "@remix-run/react";
-import { createServerClient } from "@supabase/auth-helpers-remix";
 
 import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 
 import { MESSAGES, ROUTE_HREF, ROUTES_ADMIN } from "~/lib/constants";
+import createServerSupabase from "~/lib/supabase.server";
 import { createAlbum } from "~/models/album.server";
 import AlbumForm from "~/components/AlbumForm";
 import Layout from "~/components/Layout";
 
 export const loader: LoaderFunction = async ({ request }) => {
   const response = new Response();
-  const supabase = createServerClient(
-    process.env.SUPABASE_URL!,
-    process.env.SUPABASE_ANON_KEY!,
-    { request, response }
-  );
+  const supabase = createServerSupabase({ request, response });
   const {
     data: { session },
   } = await supabase.auth.getSession();
@@ -29,11 +25,7 @@ export const loader: LoaderFunction = async ({ request }) => {
 
 export const action: ActionFunction = async ({ request }) => {
   const response = new Response();
-  const supabase = createServerClient(
-    process.env.SUPABASE_URL!,
-    process.env.SUPABASE_ANON_KEY!,
-    { request, response }
-  );
+  const supabase = createServerSupabase({ request, response });
   const formData = await request.formData();
   const artist = formData.get("artist");
   const title = formData.get("title");

@@ -1,5 +1,4 @@
-import type { Album } from "~/models/album.server";
-import type { Release } from "~/models/release.server";
+import type { Album, Release } from "~/lib/db-types";
 
 import { PER_PAGE } from "~/lib/constants";
 

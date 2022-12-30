@@ -1,4 +1,4 @@
-import type { Release } from "~/models/release.server";
+import type { Release } from "~/lib/db-types";
 
 import { formatDate } from "~/lib/utils";
 import Input from "~/components/Input";

@@ -1,14 +1,14 @@
 import { useState } from "react";
 import { json } from "@remix-run/node";
 import { useLoaderData, useSearchParams } from "@remix-run/react";
-import { createServerClient } from "@supabase/auth-helpers-remix";
 import { DocumentPlusIcon, TrashIcon } from "@heroicons/react/24/outline";
 
 import type { LoaderFunction } from "@remix-run/node";
 import type { User } from "@supabase/auth-helpers-remix";
-import type { Song } from "~/models/song.server";
+import type { Song } from "~/lib/db-types";
 
 import { MODAL_TYPES } from "~/lib/constants";
+import createServerSupabase from "~/lib/supabase.server";
 import { parseQuery } from "~/lib/utils";
 import { getSongs } from "~/models/song.server";
 import CreateSong from "~/components/modals/CreateSong";
@@ -17,11 +17,7 @@ import Layout from "~/components/Layout";
 
 export const loader: LoaderFunction = async ({ request }) => {
   const response = new Response();
-  const supabase = createServerClient(
-    process.env.SUPABASE_URL!,
-    process.env.SUPABASE_ANON_KEY!,
-    { request, response }
-  );
+  const supabase = createServerSupabase({ request, response });
   const songs = await getSongs(supabase);
   const {
     data: { session },

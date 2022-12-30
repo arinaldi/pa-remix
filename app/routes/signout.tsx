@@ -1,17 +1,13 @@
 import { json, redirect } from "@remix-run/node";
-import { createServerClient } from "@supabase/auth-helpers-remix";
 
 import type { LoaderFunction } from "@remix-run/server-runtime";
 
 import { ROUTE_HREF } from "~/lib/constants";
+import createServerSupabase from "~/lib/supabase.server";
 
 export const loader: LoaderFunction = async ({ request }) => {
   const response = new Response();
-  const supabase = createServerClient(
-    process.env.SUPABASE_URL!,
-    process.env.SUPABASE_ANON_KEY!,
-    { request, response }
-  );
+  const supabase = createServerSupabase({ request, response });
   const { error } = await supabase.auth.signOut();
 
   if (error) {

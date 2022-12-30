@@ -1,14 +1,6 @@
-import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Release, TypedSupabaseClient } from "~/lib/db-types";
 
-export interface Release {
-  id: number;
-  created_at: string;
-  artist: string;
-  title: string;
-  date: string | null;
-}
-
-export async function getReleases(supabase: SupabaseClient) {
+export async function getReleases(supabase: TypedSupabaseClient) {
   const { data: releases, error } = await supabase
     .from("releases")
     .select("*")
@@ -22,7 +14,7 @@ export async function getReleases(supabase: SupabaseClient) {
 type ReleaseInput = Omit<Release, "id" | "created_at">;
 
 export async function createRelease(
-  supabase: SupabaseClient,
+  supabase: TypedSupabaseClient,
   input: ReleaseInput
 ) {
   const { error } = await supabase.from("releases").insert([input]);
@@ -32,7 +24,7 @@ export async function createRelease(
 }
 
 export async function editRelease(
-  supabase: SupabaseClient,
+  supabase: TypedSupabaseClient,
   id: number,
   input: ReleaseInput
 ) {
@@ -42,7 +34,7 @@ export async function editRelease(
   return true;
 }
 
-export async function deleteRelease(supabase: SupabaseClient, id: number) {
+export async function deleteRelease(supabase: TypedSupabaseClient, id: number) {
   const { error } = await supabase.from("releases").delete().eq("id", id);
 
   if (error) throw error;

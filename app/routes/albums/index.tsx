@@ -1,25 +1,21 @@
 import { useState } from "react";
 import { json } from "@remix-run/node";
 import { useLoaderData, useNavigate } from "@remix-run/react";
-import { createServerClient } from "@supabase/auth-helpers-remix";
 import { ArrowUpIcon } from "@heroicons/react/24/outline";
 
 import type { LoaderFunction } from "@remix-run/node";
 import type { ChangeEvent } from "react";
-import type { Album } from "~/models/album.server";
+import type { Album } from "~/lib/db-types";
 
 import { DECADES, ROUTE_HREF, SPOTIFY_URL } from "~/lib/constants";
+import createServerSupabase from "~/lib/supabase.server";
 import { formatFavorites, sortDesc } from "~/lib/utils";
 import { getFavorites } from "~/models/album.server";
 import Layout from "~/components/Layout";
 
 export const loader: LoaderFunction = async ({ request }) => {
   const response = new Response();
-  const supabase = createServerClient(
-    process.env.SUPABASE_URL!,
-    process.env.SUPABASE_ANON_KEY!,
-    { request, response }
-  );
+  const supabase = createServerSupabase({ request, response });
   const favorites = await getFavorites(supabase);
 
   return json({ favorites }, { headers: response.headers });

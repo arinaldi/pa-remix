@@ -1,4 +1,4 @@
-import type { Song } from "~/models/song.server";
+import type { Song } from "~/lib/db-types";
 
 import Modal from "~/components/Modal";
 

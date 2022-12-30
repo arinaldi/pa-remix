@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { json } from "@remix-run/node";
 import { useLoaderData, useSearchParams } from "@remix-run/react";
-import { createServerClient } from "@supabase/auth-helpers-remix";
 import {
   DocumentPlusIcon,
   PencilIcon,
@@ -10,9 +9,10 @@ import {
 
 import type { LoaderFunction } from "@remix-run/node";
 import type { User } from "@supabase/auth-helpers-remix";
-import type { Release } from "~/models/release.server";
+import type { Release } from "~/lib/db-types";
 
 import { MODAL_TYPES } from "~/lib/constants";
+import createServerSupabase from "~/lib/supabase.server";
 import { formatReleases, parseQuery, sortByDate } from "~/lib/utils";
 import { getReleases } from "~/models/release.server";
 import CreateRelease from "~/components/modals/CreateRelease";
@@ -22,11 +22,7 @@ import Layout from "~/components/Layout";
 
 export const loader: LoaderFunction = async ({ request }) => {
   const response = new Response();
-  const supabase = createServerClient(
-    process.env.SUPABASE_URL!,
-    process.env.SUPABASE_ANON_KEY!,
-    { request, response }
-  );
+  const supabase = createServerSupabase({ request, response });
   const releases = await getReleases(supabase);
   const {
     data: { session },

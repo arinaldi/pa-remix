@@ -1,21 +1,17 @@
 import { json, redirect } from "@remix-run/node";
-import { createServerClient } from "@supabase/auth-helpers-remix";
 import invariant from "tiny-invariant";
 
 import type { ActionFunction } from "@remix-run/node";
 
 import { MESSAGES, ROUTE_HREF } from "~/lib/constants";
+import createServerSupabase from "~/lib/supabase.server";
 import { editRelease } from "~/models/release.server";
 
 export const action: ActionFunction = async ({ params, request }) => {
   invariant(params.id, "Release ID not found");
 
   const response = new Response();
-  const supabase = createServerClient(
-    process.env.SUPABASE_URL!,
-    process.env.SUPABASE_ANON_KEY!,
-    { request, response }
-  );
+  const supabase = createServerSupabase({ request, response });
   const formData = await request.formData();
   const artist = formData.get("artist");
   const title = formData.get("title");

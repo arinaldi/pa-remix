@@ -5,7 +5,7 @@ import {
   useTransition,
 } from "@remix-run/react";
 
-import type { Album } from "~/models/album.server";
+import type { Album } from "~/lib/db-types";
 
 import { ROUTES_ADMIN } from "~/lib/constants";
 import CancelButton from "~/components/CancelButton";
